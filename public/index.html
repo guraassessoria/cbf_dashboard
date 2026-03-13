@@ -54,6 +54,8 @@ nav{background:rgba(13,17,23,.95);border-bottom:1px solid var(--bdr);position:st
 .ctitle{font-size:15px;font-weight:600;color:var(--white);margin-bottom:4px}
 .csub{font-size:12px;color:var(--gray);font-weight:300}
 .cwrap{position:relative;width:100%}
+  /* Força cor branca na legenda do gráfico c1 */
+  #c1 + .chartjs-legend li span { color: #fff !important; }
   .legend, .chart-legend, .chartjs-legend, .chartjs-render-monitor { color: #fff !important; }
 .insight{background:rgba(0,112,60,.08);border:1px solid rgba(0,112,60,.25);border-left:3px solid var(--gl);border-radius:0 8px 8px 0;padding:14px 18px;margin-top:14px}
 .insight.warn{background:rgba(248,81,73,.07);border-color:rgba(248,81,73,.3);border-left-color:var(--neg)}
