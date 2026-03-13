@@ -958,7 +958,15 @@ function initCharts() {
           const ds=chart.data.datasets[0]; const total=ds.data.reduce((a,b)=>a+b,0);
           return chart.data.labels.map((lbl,i)=>{
             const pct=((ds.data[i]/total)*100).toFixed(1);
-            return {text:lbl+' R$'+ds.data[i]+'Mi ('+pct+'%)', fillStyle:ds.backgroundColor[i], strokeStyle:ds.backgroundColor[i], lineWidth:0, index:i};
+            return {
+              text:lbl+' R$'+ds.data[i]+'Mi ('+pct+'%)',
+              fillStyle:ds.backgroundColor[i],
+              strokeStyle:ds.backgroundColor[i],
+              lineWidth:0,
+              index:i,
+              fontColor:'#ffffff', // força cor branca
+              color:'#ffffff'      // força cor branca
+            };
           });
         }
       }},
