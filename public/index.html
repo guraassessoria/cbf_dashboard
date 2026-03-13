@@ -54,6 +54,7 @@ nav{background:rgba(13,17,23,.95);border-bottom:1px solid var(--bdr);position:st
 .ctitle{font-size:15px;font-weight:600;color:var(--white);margin-bottom:4px}
 .csub{font-size:12px;color:var(--gray);font-weight:300}
 .cwrap{position:relative;width:100%}
+  .legend, .chart-legend, .chartjs-legend, .chartjs-render-monitor { color: #fff !important; }
 .insight{background:rgba(0,112,60,.08);border:1px solid rgba(0,112,60,.25);border-left:3px solid var(--gl);border-radius:0 8px 8px 0;padding:14px 18px;margin-top:14px}
 .insight.warn{background:rgba(248,81,73,.07);border-color:rgba(248,81,73,.3);border-left-color:var(--neg)}
 .ilabel{font-size:10px;letter-spacing:2px;color:var(--gl);font-weight:600;text-transform:uppercase;margin-bottom:6px}
@@ -105,7 +106,6 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
 /* ...existing code... */
 .pdf-btn{flex-shrink:0;margin-right:16px;padding:7px 16px;background:transparent;border:1px solid var(--yellow);border-radius:6px;color:var(--yellow);font-size:12px;font-weight:600;letter-spacing:.5px;cursor:pointer;white-space:nowrap;transition:background .2s,color .2s}
 .pdf-btn:hover{background:var(--yellow);color:#000}
-  setChartDefaults(printMode || isPrintMode());
 /* ── PRINT / PDF STYLES ── */
 @media print {
   @page { size: A4 landscape; margin: 12mm 14mm; }
@@ -133,6 +133,10 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
   .two { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 }
 </style>
+</style>
+<script>
+setChartDefaults(printMode || isPrintMode());
+</script>
 </head>
 <body>
 
@@ -921,7 +925,15 @@ function initCharts() {
           const ds=chart.data.datasets[0]; const total=ds.data.reduce((a,b)=>a+b,0);
           return chart.data.labels.map((lbl,i)=>{
             const pct=((ds.data[i]/total)*100).toFixed(1);
-            return {text:lbl+' R$'+ds.data[i]+'Mi ('+pct+'%)', fillStyle:ds.backgroundColor[i], strokeStyle:ds.backgroundColor[i], lineWidth:0, index:i};
+            return {
+              text:lbl+' R$'+ds.data[i]+'Mi ('+pct+'%)',
+              fillStyle:ds.backgroundColor[i],
+              strokeStyle:ds.backgroundColor[i],
+              lineWidth:0,
+              index:i,
+              fontColor:'#ffffff', // força cor branca
+              color:'#ffffff'      // força cor branca
+            };
           });
         }
       }},
