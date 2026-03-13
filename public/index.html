@@ -107,23 +107,22 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
 /* ── PRINT / PDF STYLES ── */
 @media print {
   @page { size: A4 landscape; margin: 12mm 14mm; }
-  html,body { background:var(--dark) !important; color:var(--white) !important; }
+  html,body { background:#fff !important; color:#111 !important; }
   nav, header .badge, .hstripe, footer { display:none !important; }
-  header { break-inside:avoid; background:linear-gradient(135deg,var(--gd) 0%,var(--blue) 60%,#000 100%) !important; color:var(--white) !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-  .page { display:block !important; page-break-before:always; break-before:page; background:var(--dark) !important; color:var(--white) !important; }
+  header { break-inside:avoid; background:#003DA5 !important; color:#111 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .page { display:block !important; page-break-before:always; break-before:page; background:#fff !important; color:#111 !important; }
   .page:first-of-type { page-break-before:avoid; break-before:avoid; }
   .page.active { page-break-before:avoid; }
-  .ccard { break-inside:avoid; border:1px solid var(--bdr) !important; background:var(--card) !important; color:var(--white) !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-  .kcard { background:var(--card) !important; border:1px solid var(--bdr) !important; color:var(--white) !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-  .stitle,.slabel,.klabel,.kval,.ctitle,.csub { color:var(--yellow) !important; }
-  .kval.g { color:var(--pos) !important; }
-  .kval.r { color:var(--neg) !important; }
-  .badge { color:var(--pos) !important; background:rgba(63,185,80,.15) !important; border:1px solid rgba(63,185,80,.4) !important; }
+  .ccard, .kcard, .aicard, .insight, .cwrap, table, th, td { background:#fff !important; color:#111 !important; border:1px solid #ccc !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .stitle,.slabel,.klabel,.kval,.ctitle,.csub { color:#F5C800 !important; }
+  .kval.g { color:#00703C !important; }
+  .kval.r { color:#F85149 !important; }
+  .badge { color:#00703C !important; background:rgba(63,185,80,.15) !important; border:1px solid rgba(63,185,80,.4) !important; }
   .ntab,.pdf-btn { display:none !important; }
   canvas { max-width:100% !important; }
   .cwrap { height:220px !important; }
-  table { font-size:10px; background:var(--card) !important; color:var(--white) !important; }
-  th, td { color:var(--white) !important; background:var(--card) !important; }
+  table { font-size:10px; background:#fff !important; color:#111 !important; }
+  th, td { color:#111 !important; background:#fff !important; }
   .two { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 }
 </style>
