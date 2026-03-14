@@ -54,9 +54,6 @@ nav{background:rgba(13,17,23,.95);border-bottom:1px solid var(--bdr);position:st
 .ctitle{font-size:15px;font-weight:600;color:var(--white);margin-bottom:4px}
 .csub{font-size:12px;color:var(--gray);font-weight:300}
 .cwrap{position:relative;width:100%}
-  /* Força cor branca na legenda do gráfico c1 */
-  #c1 + .chartjs-legend li span { color: #fff !important; }
-  .legend, .chart-legend, .chartjs-legend, .chartjs-render-monitor { color: #fff !important; }
 .insight{background:rgba(0,112,60,.08);border:1px solid rgba(0,112,60,.25);border-left:3px solid var(--gl);border-radius:0 8px 8px 0;padding:14px 18px;margin-top:14px}
 .insight.warn{background:rgba(248,81,73,.07);border-color:rgba(248,81,73,.3);border-left-color:var(--neg)}
 .ilabel{font-size:10px;letter-spacing:2px;color:var(--gl);font-weight:600;text-transform:uppercase;margin-bottom:6px}
@@ -104,43 +101,180 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
 @media(max-width:768px){.main{padding:22px 16px}.hi{padding:22px 16px 18px}.ni{padding:0 16px}.two{grid-template-columns:1fr}footer{padding:18px 16px;flex-direction:column;text-align:center}}
 
 /* ── PDF EXPORT BUTTON ── */
-/* ...existing code... */
-/* ...existing code... */
 .pdf-btn{flex-shrink:0;margin-right:16px;padding:7px 16px;background:transparent;border:1px solid var(--yellow);border-radius:6px;color:var(--yellow);font-size:12px;font-weight:600;letter-spacing:.5px;cursor:pointer;white-space:nowrap;transition:background .2s,color .2s}
 .pdf-btn:hover{background:var(--yellow);color:#000}
+
 /* ── PRINT / PDF STYLES ── */
+
+/* Named page types for per-page orientation */
+@page landscape-page { size: A4 landscape; margin: 0; }
+@page portrait-page  { size: A4 portrait;  margin: 0; }
+@page { margin: 0; }
+
 @media print {
-  @page { size: A4 portrait; margin: 0; }
-  html, body { background: #fff !important; color: #000 !important; }
-  nav, header .badge, .hstripe, footer { display: none !important; }
-  header { break-inside: avoid; background: #003DA5 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .page { display: block !important; page-break-before: always; break-before: page; width: 100vw; min-height: 100vh; background: #fff !important; }
-  .page[data-orientation="landscape"] { -webkit-transform: rotate(90deg); transform: rotate(90deg); width: 100vh; height: 100vw; overflow: visible; background: #fff !important; }
-  .page[data-orientation="portrait"] { width: 100vw; height: 100vh; background: #fff !important; }
-  .page:first-of-type { page-break-before: avoid; break-before: avoid; }
-  .page.active { page-break-before: avoid; }
-  .ccard, .kcard, .aicard, .insight, .cwrap, table, th, td { background: #fff !important; color: #000 !important; border: 1px solid #ccc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .insight { background: #fff !important; border: 1px solid #00963F !important; border-left: 3px solid #00963F !important; color: #00963F !important; }
-  .insight .ilabel { color: #00963F !important; font-weight: 700 !important; }
-  .insight p, .insight strong { color: #000 !important; font-weight: 500 !important; }
-  .insight.warn { border: 1px solid #F85149 !important; border-left: 3px solid #F85149 !important; color: #F85149 !important; }
-  .insight.warn .ilabel { color: #F85149 !important; }
-  .stitle, .slabel, .klabel, .kval, .ctitle, .csub { color: #F5C800 !important; }
-  .kval.g { color: #00703C !important; }
-  .kval.r { color: #F85149 !important; }
-  .badge { color: #00703C !important; background: rgba(63,185,80,.15) !important; border: 1px solid rgba(63,185,80,.4) !important; }
-  .ntab, .pdf-btn { display: none !important; }
-  canvas { max-width: 100% !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .cwrap { height: 220px !important; }
-  table { font-size: 10px; background: #fff !important; color: #000 !important; }
-  th, td { color: #000 !important; background: #fff !important; }
-  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  /* ── Kill browser chrome ── */
+  html {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* ── Hide UI chrome ── */
+  nav, footer, .pdf-btn { display: none !important; }
+  header { display: none !important; }
+
+  /* ── Body reset ── */
+  body {
+    background: #0D1117 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+  }
+
+  /* ── Each page fills exactly one printed page ── */
+  .page {
+    display: block !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    padding: 20px 28px !important;
+    box-sizing: border-box !important;
+    page-break-before: always !important;
+    break-before: page !important;
+    background: #0D1117 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    overflow: hidden !important;
+  }
+
+  /* First page: no page break before */
+  .page:first-of-type {
+    page-break-before: avoid !important;
+    break-before: avoid !important;
+  }
+
+  /* ── Orientation per page ── */
+  .page.landscape { page: landscape-page; }
+  .page.portrait  { page: portrait-page; }
+
+  /* ── Page title (slabel + stitle) — compact for print ── */
+  .slabel { font-size: 9px !important; margin-bottom: 4px !important; }
+  .stitle { font-size: 22px !important; margin-bottom: 14px !important; }
+
+  /* ── KPI grid ── */
+  .kgrid {
+    gap: 10px !important;
+    margin-bottom: 14px !important;
+  }
+  .kcard {
+    background: #161B22 !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    padding: 12px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    break-inside: avoid !important;
+  }
+  .kcard::before {
+    background: linear-gradient(90deg, #00703C, #F5C800) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .kval { font-size: 22px !important; color: #FAFAFA !important; }
+  .klabel { color: #8B949E !important; font-size: 10px !important; }
+  .kdelta { font-size: 10px !important; }
+  .ksub { font-size: 9px !important; }
+
+  /* ── Cards ── */
+  .ccard {
+    background: #161B22 !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    padding: 16px !important;
+    margin-bottom: 12px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    break-inside: avoid !important;
+  }
+  .ctitle { color: #FAFAFA !important; font-size: 13px !important; }
+  .csub   { color: #8B949E !important; font-size: 11px !important; }
+
+  /* ── Charts ── */
+  .cwrap {
+    position: relative !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  canvas {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    max-width: 100% !important;
+  }
+
+  /* ── Tables ── */
+  table { font-size: 10px !important; width: 100% !important; }
+  th { color: #8B949E !important; font-size: 9px !important; padding: 6px 8px !important; border-bottom: 1px solid rgba(255,255,255,0.08) !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  td { color: rgba(255,255,255,0.8) !important; padding: 7px 8px !important; border-bottom: 1px solid rgba(255,255,255,0.04) !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  td[style*="color:var(--neg)"] { color: var(--neg) !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  td[style*="color:var(--pos)"] { color: var(--pos) !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .num { color: rgba(255,255,255,0.8) !important; }
+  .du  { color: #3FB950 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .dd  { color: #F85149 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .dre-row-total td { background: rgba(255,255,255,0.04) !important; font-weight: 600 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .dre-header td { color: #F5C800 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+  /* ── Insight boxes ── */
+  .insight {
+    background: rgba(0,112,60,0.08) !important;
+    border-left: 3px solid #00963F !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    padding: 10px 14px !important;
+    margin-top: 8px !important;
+  }
+  .insight.warn { background: rgba(248,81,73,0.07) !important; border-left-color: #F85149 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .insight p { font-size: 11px !important; color: rgba(255,255,255,0.72) !important; }
+  .ilabel { font-size: 9px !important; }
+
+  /* ── Two-column grid ── */
+  .two { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 14px !important; }
+  .cgrid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 14px !important; }
+
+  /* ── Chart heights per page (compact for A4) ── */
+  #overview   .cwrap { height: 180px !important; }
+  #receitas   .cwrap { height: 220px !important; }
+  #despesas   .cwrap { height: 200px !important; }
+  #balanco    .cwrap { height: 170px !important; }
+  #historico  .cwrap { height: 200px !important; }
+  #bp         .cwrap { height: 190px !important; }
+  #indicadores .cwrap { height: 190px !important; }
+
+  /* ── Badges, pills ── */
+  .badge {
+    background: rgba(63,185,80,0.15) !important;
+    border: 1px solid rgba(63,185,80,0.4) !important;
+    color: #3FB950 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* ── Timeline ── */
+  .tl::before { background: linear-gradient(to bottom, #00703C, #F5C800, transparent) !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .ti::before { background: #F5C800 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .td { color: #F5C800 !important; font-size: 10px !important; }
+  .tt { font-size: 12px !important; }
+  .tx { font-size: 10px !important; }
+
+  /* ── Colors ── */
+  [style*="color:var(--neg)"], [style*="color:var(--pos)"], [style*="color:var(--yellow)"] {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
 }
 </style>
-</style>
-<script>
-setChartDefaults(printMode || isPrintMode());
-</script>
 </head>
 <body>
 
@@ -172,30 +306,16 @@ setChartDefaults(printMode || isPrintMode());
     <button class="ntab" onclick="sp('indicadores')">Indicadores</button>
     <button class="ntab" onclick="sp('historico')">Série Histórica</button>
   </div>
-  <button class="pdf-btn" onclick="printDashboard()" title="Imprimir apresentação completa">
+  <button class="pdf-btn" onclick="exportPDF()" title="No diálogo de impressão: ative Gráficos de fundo · desative Cabeçalhos e rodapés">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-2px;margin-right:5px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-    Imprimir Dashboard
+    Exportar PDF
   </button>
-<script>
-// Impressão customizada: mede cada página e define orientação
-function printDashboard() {
-  const pages = document.querySelectorAll('.page');
-  pages.forEach((page, idx) => {
-    const rect = page.getBoundingClientRect();
-    const orientation = rect.width > rect.height ? 'landscape' : 'portrait';
-    page.setAttribute('data-orientation', orientation);
-    page.style.pageBreakBefore = idx === 0 ? 'avoid' : 'always';
-    page.style.breakBefore = idx === 0 ? 'avoid' : 'page';
-  });
-  window.print();
-}
-</script>
 </nav>
 
 <main class="main">
 
 <!-- ═ OVERVIEW ═ -->
-<div id="overview" class="page active">
+<div id="overview" class="page landscape active">
   <div class="slabel">// 01 — OVERVIEW EXECUTIVO</div>
   <div class="stitle">Demonstrações Financeiras<br><span style="color:var(--yellow)">CBF 2025 · Draft</span></div>
 
@@ -279,7 +399,7 @@ function printDashboard() {
 </div>
 
 <!-- ═ RECEITAS ═ -->
-<div id="receitas" class="page">
+<div id="receitas" class="page landscape">
   <div class="slabel">// 02 — ANÁLISE DE RECEITAS</div>
   <div class="stitle">Receitas 2025<br><span style="color:var(--yellow)">Dados Reais · DFS Draft V06</span></div>
 
@@ -311,14 +431,14 @@ function printDashboard() {
     <div class="kcard">
       <div class="klabel">Prog. Desenvolvimento + Academy</div>
       <div class="kval" style="font-size:28px;">R$ 11,6 Mi</div>
-      <div class="kdelta dn">▼ −42% vs 2024 (R$21,7 milhões)</div>
+      <div class="kdelta dn">▼ −46% vs 2024 (R$21,7 milhões)</div>
       <div class="ksub">CBF Academy e programas de base</div>
     </div>
   </div>
 
   <div class="c32">
     <div class="ccard">
-      <div class="ctitle" style="margin-bottom:4px;">Receitas 2024 vs 2025 por Categoria</div>
+      <div class="ctitle" style="margin-bottom:4px;">Receitas 2025 vs 2024 por Categoria</div>
       <div class="csub" style="margin-bottom:18px;">Comparativo em R$ milhões · dados reais</div>
       <div class="cwrap" style="height:300px;"><canvas id="c4"></canvas></div>
       <div class="insight" style="margin-top:12px;">
@@ -388,7 +508,7 @@ function printDashboard() {
 </div>
 
 <!-- ═ DESPESAS ═ -->
-<div id="despesas" class="page">
+<div id="despesas" class="page landscape">
   <div class="slabel">// 03 — INVESTIMENTOS NO FUTEBOL</div>
   <div class="stitle">Como a CBF<br><span style="color:var(--pos)">Investe no Esporte · 2025</span></div>
 
@@ -408,7 +528,7 @@ function printDashboard() {
     <div class="kcard">
       <div class="klabel">Seleções Femininas</div>
       <div class="kval">R$ 94,3 Mi</div>
-      <div class="kdelta up">▼ −19% vs 2024 (R$116,5 milhões)</div>
+      <div class="kdelta up">▼ −19,1% vs 2024 (R$116,5 milhões)</div>
       <div class="ksub">Investimento pós-ciclo Copa Feminina</div>
     </div>
     <div class="kcard">
@@ -438,14 +558,14 @@ function printDashboard() {
       <div class="cwrap" style="height:270px;"><canvas id="c7"></canvas></div>
     </div>
     <div class="ccard">
-      <div class="ctitle" style="margin-bottom:4px;">Custos das Seleções 2024 vs 2025</div>
+      <div class="ctitle" style="margin-bottom:4px;">Custos das Seleções 2025 vs 2024</div>
       <div class="csub" style="margin-bottom:18px;">Crescimento por categoria (R$ Mi)</div>
       <div class="cwrap" style="height:270px;"><canvas id="c8"></canvas></div>
     </div>
   </div>
 
   <div class="ccard">
-    <div class="ctitle" style="margin-bottom:16px;">Investimento Total no Futebol Brasileiro · 2024 vs 2025</div>
+    <div class="ctitle" style="margin-bottom:16px;">Investimento Total no Futebol Brasileiro · 2025 vs 2024</div>
     <table>
       <thead><tr><th>Linha de Custo</th><th style="text-align:right;">2025 (R$Mi)</th><th style="text-align:right;">2024 (R$Mi)</th><th style="text-align:right;">Var.</th></tr></thead>
       <tbody>
@@ -489,63 +609,47 @@ function printDashboard() {
 
   <div class="ccard" style="margin-top:20px;">
     <div class="ctitle" style="margin-bottom:4px;">Despesas Administrativas · Crescimento +111%</div>
-    <div class="csub" style="margin-bottom:16px;">Detalhamento dos R$&nbsp;223 milhões de acréscimo nas despesas administrativas em 2025</div>
+    <div class="csub" style="margin-bottom:16px;">Detalhamento dos R$&nbsp;223 milhões de acréscimo nas despesas administrativas em 2025 · Base: Balancete 31/12/2025</div>
 <div style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.8;margin-bottom:14px;">O acréscimo de <strong style="color:var(--white);">R$ 223 milhões</strong> nas despesas administrativas foi direcionado predominantemente a:</div>
         <div style="display:flex;flex-direction:column;gap:10px;">
           <div style="background:rgba(248,81,73,.08);border-left:3px solid var(--neg);padding:10px 14px;border-radius:0 8px 8px 0;">
             <div style="font-size:13px;font-weight:600;color:var(--white);">R$ 92 milhões · Jurídico</div>
-            <div style="font-size:12px;color:var(--gray);margin-top:3px;">Proc. Icasa, acordos trabalhistas e serviços advocatícios</div>
+            <div style="font-size:12px;color:var(--gray);margin-top:3px;">Proc. Icasa, acordos trabalhistas e serviços advocatícios (3.2.2.50.2 | Serv. PJ: R$100Mi em 2025 vs R$73Mi em 2024)</div>
           </div>
           <div style="background:rgba(245,200,0,.07);border-left:3px solid var(--yellow);padding:10px 14px;border-radius:0 8px 8px 0;">
-            <div style="font-size:13px;font-weight:600;color:var(--white);">R$ 25 milhões · Presidência</div>
-            <div style="font-size:12px;color:var(--gray);margin-top:3px;">Folha de pagamentos Vice-Presidência e Presidência</div>
+            <div style="font-size:13px;font-weight:600;color:var(--white);">R$ 40 milhões · PCLD — Provisão para Perda de Crédito</div>
+            <div style="font-size:12px;color:var(--gray);margin-top:3px;">Constituída integralmente em set–dez/2025 · Conta 3.2.2.41.0 · Zero em 2024 · Item não recorrente</div>
+          </div>
+          <div style="background:rgba(248,81,73,.08);border-left:3px solid var(--neg);padding:10px 14px;border-radius:0 8px 8px 0;">
+            <div style="font-size:13px;font-weight:600;color:var(--white);">R$ 25 milhões · Presidência e Autônomos</div>
+            <div style="font-size:12px;color:var(--gray);margin-top:3px;">Folha Vice-Presidência/Presidência + Serv. PF (R$29Mi vs R$8Mi em 2024) · Crescimento de R$21Mi</div>
           </div>
           <div style="background:rgba(63,185,80,.07);border-left:3px solid var(--pos);padding:10px 14px;border-radius:0 8px 8px 0;">
-            <div style="font-size:13px;font-weight:600;color:var(--white);">R$ 18 milhões · Viagens</div>
-            <div style="font-size:12px;color:var(--gray);margin-top:3px;">Acompanhamento Seleção Principal + Mundial de Clubes</div>
+            <div style="font-size:13px;font-weight:600;color:var(--white);">R$ 22 milhões · Viagens</div>
+            <div style="font-size:12px;color:var(--gray);margin-top:3px;">Acompanhamento Seleção Principal + Mundial de Clubes (R$34Mi vs R$12Mi em 2024)</div>
           </div>
           <div style="background:rgba(110,168,254,.07);border-left:3px solid #6ea8fe;padding:10px 14px;border-radius:0 8px 8px 0;">
             <div style="font-size:13px;font-weight:600;color:var(--white);">R$ 5 milhões · Marketing</div>
-            <div style="font-size:12px;color:var(--gray);margin-top:3px;">Captação de patrocínio e identidade visual Seleção</div>
+            <div style="font-size:12px;color:var(--gray);margin-top:3px;">Captação de patrocínio e identidade visual Seleção (R$5,1Mi vs R$2,6Mi em 2024)</div>
+          </div>
+          <div style="background:rgba(255,255,255,.04);border-left:3px solid var(--gray);padding:10px 14px;border-radius:0 8px 8px 0;">
+            <div style="font-size:13px;font-weight:600;color:var(--white);">R$ 22 milhões · Crescimento Orgânico Esperado (~15%)</div>
+            <div style="font-size:12px;color:var(--gray);margin-top:3px;">Reajustes salariais, inflação de contratos e expansão operacional natural sobre base 2024 de R$146Mi</div>
           </div>
           <div style="background:rgba(188,140,255,.07);border-left:3px solid var(--purple);padding:10px 14px;border-radius:0 8px 8px 0;">
-            <div style="font-size:13px;font-weight:600;color:var(--white);">PCLD · Provisão</div>
-            <div style="font-size:12px;color:var(--gray);margin-top:3px;">Ajuste na provisão de perdas e crédito (set–dez/2025)</div>
+            <div style="font-size:13px;font-weight:600;color:var(--white);">R$ 17 milhões · Outros Excedentes</div>
+            <div style="font-size:12px;color:var(--gray);margin-top:3px;">Utilidades e Serviços (+R$12Mi), Outras Despesas Gerais e variações residuais não classificadas nos itens acima</div>
           </div>
-  </div>
-  <div class="ccard" style="margin-top:20px;">
-    <div class="ctitle" style="margin-bottom:4px;">Despesas Operacionais · 2024 vs 2025</div>
-    <div class="csub" style="margin-bottom:16px;">Desp. Administrativas · Pessoal · Total OPEX (R$ Mi)</div>
-    <div class="two" style="margin-bottom:0;">
-      <div>
-        <div class="cwrap" style="height:260px;"><canvas id="cdespop1"></canvas></div>
-      </div>
-      <div>
-        <table>
-          <thead><tr><th>Linha</th><th style="text-align:right;">2025 (R$Mi)</th><th style="text-align:right;">2024 (R$Mi)</th><th style="text-align:right;">Var.</th></tr></thead>
-          <tbody>
-            <tr class="dre-header"><td colspan="4">Despesas Operacionais</td></tr>
-            <tr><td>Desp. Administrativas</td><td class="num">369,1</td><td class="num">145,8</td><td class="num dd">▲ +153%</td></tr>
-            <tr style="padding-left:16px;"><td style="padding-left:16px;font-size:11px;color:var(--gray);">— Jurídico (Icasa + acordos)</td><td class="num" style="font-size:11px;color:var(--gray);">92,0</td><td class="num" style="font-size:11px;color:var(--gray);">—</td><td></td></tr>
-            <tr style="padding-left:16px;"><td style="padding-left:16px;font-size:11px;color:var(--gray);">— Presidência/Vice</td><td class="num" style="font-size:11px;color:var(--gray);">25,0</td><td class="num" style="font-size:11px;color:var(--gray);">—</td><td></td></tr>
-            <tr style="padding-left:16px;"><td style="padding-left:16px;font-size:11px;color:var(--gray);">— Viagens (Seleção/Mundial)</td><td class="num" style="font-size:11px;color:var(--gray);">18,0</td><td class="num" style="font-size:11px;color:var(--gray);">—</td><td></td></tr>
-            <tr style="padding-left:16px;"><td style="padding-left:16px;font-size:11px;color:var(--gray);">— Marketing/Identidade Visual</td><td class="num" style="font-size:11px;color:var(--gray);">5,0</td><td class="num" style="font-size:11px;color:var(--gray);">—</td><td></td></tr>
-            <tr><td>Despesas com Pessoal</td><td class="num">58,2</td><td class="num">50,3</td><td class="num dd">▲ +15,6%</td></tr>
-            <tr class="dre-row-total"><td>Total OPEX</td><td class="num">427,3</td><td class="num">196,1</td><td class="num dd">▲ +118%</td></tr>
-          </tbody>
-        </table>
-        <div class="insight" style="margin-top:12px;">
-          <div class="ilabel">⚠️ Desvio Principal</div>
-          <p>O crescimento de <strong>+111%</strong> nas despesas administrativas foi concentrado em <strong>eventos não recorrentes</strong>: R$92 milhões em questões jurídicas (Icasa + acordos trabalhistas), R$25 milhões em remuneração executiva e R$18 milhões em viagens da Seleção para jogos fora do Brasil. Excluindo esses itens, o crescimento orgânico seria de ~15%.</p>
         </div>
-      </div>
-    </div>
+        <div class="insight warn" style="margin-top:14px;">
+          <div class="ilabel">⚠️ Desvio Principal</div>
+          <p>O crescimento de <strong>+111%</strong> nas despesas administrativas foi concentrado em <strong>eventos não recorrentes</strong>: R$92 milhões em questões jurídicas (Icasa + acordos trabalhistas), R$40 milhões em PCLD constituída integralmente no 2º semestre, R$25 milhões em remuneração executiva e R$22 milhões em viagens da Seleção. Excluindo esses itens, o crescimento orgânico seria de <strong>~15%</strong> — compatível com inflação e expansão operacional.</p>
+        </div>
   </div>
-</div>
 </div>
 
 <!-- ═ BALANCO ═ -->
-<div id="balanco" class="page">
+<div id="balanco" class="page portrait">
   <div class="slabel">// 04 — DEMONSTRAÇÃO DO RESULTADO</div>
   <div class="stitle">DRE Completa<br><span style="color:var(--yellow)">2025 vs 2024 · Dados Reais</span></div>
 
@@ -555,41 +659,41 @@ function printDashboard() {
       <thead><tr><th>Descrição</th><th style="text-align:right;">2025</th><th style="text-align:right;">2024</th><th style="text-align:right;">Var. %</th></tr></thead>
       <tbody>
         <tr class="dre-header"><td colspan="4">Receita Bruta</td></tr>
-        <tr><td>Patrocínios</td><td class="num">437.931</td><td class="num">451.397</td><td class="num du">−3,0%</td></tr>
+        <tr><td>Patrocínios</td><td class="num">437.931</td><td class="num">451.397</td><td class="num dd">−3,0%</td></tr>
         <tr><td>Direito de Transmissão e Comerciais</td><td class="num">637.903</td><td class="num">723.900</td><td class="num dd">−11,9%</td></tr>
         <tr><td>Bilheteria e Premiações</td><td class="num">54.828</td><td class="num">66.963</td><td class="num dd">−18,1%</td></tr>
         <tr><td>Registros e Transferências</td><td class="num">51.034</td><td class="num">38.393</td><td class="num du">+32,9%</td></tr>
         <tr><td>Programa de Desenvolvimento</td><td class="num">7.041</td><td class="num">15.724</td><td class="num dd">−55,2%</td></tr>
         <tr><td>CBF Academy</td><td class="num">4.591</td><td class="num">5.957</td><td class="num dd">−22,9%</td></tr>
-        <tr class="dre-row-total"><td>Total das Receitas</td><td class="num" style="color:var(--neg);">1.193.328</td><td class="num">1.302.334</td><td class="num dd">−8,4%</td></tr>
-        <tr><td style="color:var(--gray);">Deduções da Receita (COFINS/ISS)</td><td class="num">(83.956)</td><td class="num">(82.473)</td><td class="num dd">+1,8%</td></tr>
-        <tr class="dre-row-total"><td>Receita Líquida</td><td class="num" style="color:var(--neg);">1.109.372</td><td class="num">1.219.861</td><td class="num dd">−9,1%</td></tr>
+        <tr class="dre-row-total"><td>Total das Receitas</td><td class="num">1.193.328</td><td class="num">1.302.334</td><td class="num dd">−8,4%</td></tr>
+        <tr><td>Deduções da Receita (COFINS/ISS)</td><td class="num">(83.956)</td><td class="num">(82.473)</td><td class="num dd">+1,8%</td></tr>
+        <tr class="dre-row-total"><td>Receita Líquida</td><td class="num">1.109.372</td><td class="num">1.219.861</td><td class="num dd">−9,1%</td></tr>
 
         <tr class="dre-header"><td colspan="4">Custos com Futebol</td></tr>
         <tr><td>Seleção Principal</td><td class="num">(281.071)</td><td class="num">(201.149)</td><td class="num dd">+39,7%</td></tr>
         <tr><td>Seleções de Base</td><td class="num">(44.709)</td><td class="num">(26.997)</td><td class="num dd">+65,6%</td></tr>
         <tr><td>Seleções Femininas</td><td class="num">(94.251)</td><td class="num">(116.467)</td><td class="num du">−19,1%</td></tr>
         <tr><td>Contribuição ao Fomento (Estados e Competições)</td><td class="num">(756.674)</td><td class="num">(734.119)</td><td class="num dd">+3,1%</td></tr>
-        <tr class="dre-row-total"><td>Total dos Custos com Futebol</td><td class="num" style="color:var(--neg);">(1.176.706)</td><td class="num">(1.078.732)</td><td class="num dd">+9,1%</td></tr>
-        <tr class="dre-row-total"><td>Superávit / (Déficit) Bruto</td><td class="num" style="color:var(--neg);">(67.334)</td><td class="num" style="color:var(--pos);">141.129</td><td class="num dd">n/a</td></tr>
+        <tr class="dre-row-total"><td>Total dos Custos com Futebol</td><td class="num">(1.176.706)</td><td class="num">(1.078.732)</td><td class="num dd">+9,1%</td></tr>
+        <tr class="dre-row-total"><td>Superávit / (Déficit) Bruto</td><td class="num">(67.334)</td><td class="num">141.129</td><td class="num dd">−147,7%</td></tr>
 
         <tr class="dre-header"><td colspan="4">Despesas Operacionais</td></tr>
         <tr><td>Despesas com Pessoal</td><td class="num">(58.195)</td><td class="num">(50.344)</td><td class="num dd">+15,6%</td></tr>
         <tr><td>Despesas Administrativas</td><td class="num">(369.076)</td><td class="num">(145.822)</td><td class="num dd">+153,1%</td></tr>
         <tr><td>Impostos e Taxas</td><td class="num">(11.083)</td><td class="num">(12.125)</td><td class="num du">−8,6%</td></tr>
-        <tr class="dre-row-total"><td>Total das Despesas Operacionais</td><td class="num" style="color:var(--neg);">(438.354)</td><td class="num">(208.291)</td><td class="num dd">+110,5%</td></tr>
+        <tr class="dre-row-total"><td>Total das Despesas Operacionais</td><td class="num">(438.354)</td><td class="num">(208.291)</td><td class="num dd">+110,5%</td></tr>
 
         <tr class="dre-header"><td colspan="4">Resultado Financeiro</td></tr>
         <tr><td>Receitas Financeiras</td><td class="num">317.910</td><td class="num">131.865</td><td class="num du">+141,1%</td></tr>
         <tr><td>Despesas Financeiras</td><td class="num">(12.250)</td><td class="num">(9.007)</td><td class="num dd">+36,0%</td></tr>
-        <tr><td>Variação Cambial</td><td class="num">(9.983)</td><td class="num">69.911</td><td class="num dd">n/a</td></tr>
-        <tr class="dre-row-total"><td>Total do Resultado Financeiro</td><td class="num" style="color:var(--pos);">295.677</td><td class="num">192.769</td><td class="num du">+53,4%</td></tr>
+        <tr><td>Variação Cambial</td><td class="num">(9.983)</td><td class="num">69.911</td><td class="num dd">−114,3%</td></tr>
+        <tr class="dre-row-total"><td>Total do Resultado Financeiro</td><td class="num">295.677</td><td class="num">192.769</td><td class="num du">+53,4%</td></tr>
 
         <tr><td>Outras Receitas Operacionais</td><td class="num">27.531</td><td class="num">41.994</td><td class="num dd">−34,4%</td></tr>
 
-        <tr class="dre-row-total"><td>Resultado Antes do IR/CSLL</td><td class="num" style="color:var(--neg);">(182.480)</td><td class="num" style="color:var(--pos);">167.601</td><td class="num dd">n/a</td></tr>
-        <tr><td>IR e Contribuição Social</td><td class="num">—</td><td class="num">(60.944)</td><td class="num du">−100%</td></tr>
-        <tr class="dre-row-total" style="border-top:2px solid rgba(248,81,73,.4);"><td><strong>RESULTADO DO EXERCÍCIO</strong></td><td class="num" style="color:var(--neg);font-size:14px;"><strong>(182.480)</strong></td><td class="num" style="color:var(--pos);font-size:14px;"><strong>106.657</strong></td><td class="num dd">n/a</td></tr>
+        <tr class="dre-row-total"><td>Resultado Antes do IR/CSLL</td><td class="num">(182.480)</td><td class="num">167.601</td><td class="num dd">−208,9%</td></tr>
+        <tr><td>IR e Contribuição Social</td><td class="num">—</td><td class="num">(60.944)</td><td class="num du">−100,0%</td></tr>
+        <tr class="dre-row-total" style="border-top:2px solid rgba(248,81,73,.4);"><td><strong>RESULTADO DO EXERCÍCIO</strong></td><td class="num" style="color:var(--neg);font-size:14px;"><strong>(182.480)</strong></td><td class="num" style="color:var(--pos);font-size:14px;"><strong>106.657</strong></td><td class="num dd">−271,1%</td></tr>
       </tbody>
     </table>
     <div class="insight" style="margin-top:12px;">
@@ -600,7 +704,7 @@ function printDashboard() {
 </div>
 
 <!-- ═ HISTORICO ═ -->
-<div id="historico" class="page">
+<div id="historico" class="page landscape">
   <div class="slabel">// 05 — SÉRIE HISTÓRICA</div>
   <div class="stitle">Evolução Financeira<br><span style="color:var(--yellow)">2021 → 2025</span></div>
 
@@ -648,7 +752,7 @@ function printDashboard() {
 
 
 <!-- ═ BALANÇO PATRIMONIAL ═ -->
-<div id="bp" class="page">
+<div id="bp" class="page landscape">
   <div class="slabel">// 05 — BALANÇO PATRIMONIAL</div>
   <div class="stitle">Composição<br><span style="color:var(--yellow)">Patrimonial · 2025 vs 2024</span></div>
 
@@ -680,7 +784,7 @@ function printDashboard() {
     <div class="kcard">
       <div class="klabel">Patrimônio Líquido</div>
       <div class="kval">R$ 1,26 Bi</div>
-      <div class="kdelta dn">▼ −12,4% vs 2024 (R$1,44 bilhões)</div>
+      <div class="kdelta dn">▼ −12,6% vs 2024 (R$1,44 bilhões)</div>
       <div class="ksub">Patrimônio Social: R$1,44 bilhões</div>
     </div>
     <div class="kcard">
@@ -769,7 +873,7 @@ function printDashboard() {
 </div>
 
 <!-- ═ INDICADORES ═ -->
-<div id="indicadores" class="page">
+<div id="indicadores" class="page landscape">
   <div class="slabel">// 06 — INDICADORES FINANCEIROS</div>
   <div class="stitle">Saúde Financeira<br><span style="color:var(--yellow)">Indicadores e Análises</span></div>
 
@@ -799,10 +903,10 @@ function printDashboard() {
       <div class="ksub">Aplicações do adiantamento Nike</div>
     </div>
     <div class="kcard">
-      <div class="klabel">Margem EBITDA Operacional</div>
-      <div class="kval">−0,27</div>
-      <div class="kdelta dn">▼ vs −0,05 em 2024 (piora de 440%)</div>
-      <div class="ksub">Índice EBITDA = (Rec. Líq. − Custos − OPEX) / Rec. Líq. | Fonte: Slide 9 da apresentação</div>
+      <div class="klabel">EBITDA / Margem EBITDA 2025</div>
+      <div class="kval">−R$ 494 Mi</div>
+      <div class="kdelta dn">▼ −40,4% vs −1,8% em 2024</div>
+      <div class="ksub">LL (−182) − RF (−318) + D&amp;A (+6,7) · Operação consome antes do efeito financeiro</div>
     </div>
     <div class="kcard">
       <div class="klabel">Contratos não renovados (impacto)</div>
@@ -812,9 +916,9 @@ function printDashboard() {
     </div>
     <div class="kcard">
       <div class="klabel">Liquidez Corrente</div>
-      <div class="kval">6,14</div>
-      <div class="kdelta up">▲ vs 5,21 em 2024</div>
-      <div class="ksub">Ativo Circ. / Passivo Circ. · Posição confortável</div>
+      <div class="kval">3,95</div>
+      <div class="kdelta dn">▼ 3,95 (2025) vs 5,21 (2024)</div>
+      <div class="ksub">AC / PC · R$2.414Bi / R$611Mi · Posição confortável</div>
     </div>
     <div class="kcard">
       <div class="klabel">Liquidez Geral</div>
@@ -824,9 +928,9 @@ function printDashboard() {
     </div>
     <div class="kcard">
       <div class="klabel">Liquidez Imediata</div>
-      <div class="kval">5,08</div>
-      <div class="kdelta up">▲ vs 4,57 em 2024</div>
-      <div class="ksub">Caixa / Passivo Circ. · Excelente cobertura imediata</div>
+      <div class="kval">3,27</div>
+      <div class="kdelta dn">▼ 3,27 (2025) vs 4,58 (2024)</div>
+      <div class="ksub">Caixa / PC · R$1.997Bi / R$611Mi · Boa cobertura imediata</div>
     </div>
   </div>
 
@@ -841,12 +945,34 @@ function printDashboard() {
       </div>
     </div>
     <div class="ccard">
-      <div class="ctitle" style="margin-bottom:4px;">Composição da Redução do Caixa (R$ Mi)</div>
-      <div class="csub" style="margin-bottom:16px;">Principais fatores da queda de R$436 milhões</div>
+      <div class="ctitle" style="margin-bottom:4px;">Demonstração do Fluxo de Caixa · 2025 (R$ Mi)</div>
+      <div class="csub" style="margin-bottom:16px;">Composição da variação de −R$ 436 milhões nas disponibilidades · Fonte: DFC 31/12/2025</div>
       <div class="cwrap" style="height:260px;"><canvas id="cind2"></canvas></div>
+      <div style="margin-top:16px;">
+        <table>
+          <thead><tr><th>Linha da DFC</th><th style="text-align:right;">R$ Mi</th><th style="text-align:right;">Efeito</th></tr></thead>
+          <tbody>
+            <tr class="dre-header"><td colspan="3">Atividades Operacionais — (R$ 330 milhões)</td></tr>
+            <tr><td>Déficit do Exercício</td><td class="num">(182,5)</td><td class="num dd">−</td></tr>
+            <tr><td>Provisões para Contingências</td><td class="num du">+116,6</td><td class="num du">+</td></tr>
+            <tr><td>Depreciação e Amortização</td><td class="num du">+6,3</td><td class="num du">+</td></tr>
+            <tr><td>Demais Provisões</td><td class="num dd">(1,6)</td><td class="num dd">−</td></tr>
+            <tr><td>Aumento em Ativos (Dep.Judiciais, C.Receber, Impost.)</td><td class="num dd">(191,5)</td><td class="num dd">−</td></tr>
+            <tr><td>Variação em Passivos (Rec.Diferida, Fornec., Tributos)</td><td class="num dd">(138,3)</td><td class="num dd">−</td></tr>
+            <tr class="dre-row-total"><td>Fluxo Operacional</td><td class="num dd">(329,8)</td><td class="num dd">−</td></tr>
+            <tr class="dre-header"><td colspan="3">Atividades de Investimento — (R$ 45 milhões)</td></tr>
+            <tr><td>Compra de Imobilizado</td><td class="num dd">(45,1)</td><td class="num dd">−</td></tr>
+            <tr class="dre-row-total"><td>Fluxo de Investimento</td><td class="num dd">(45,1)</td><td class="num dd">−</td></tr>
+            <tr class="dre-row-total" style="border-top:2px solid rgba(248,81,73,.4);"><td><strong>Redução Total no Caixa</strong></td><td class="num dd"><strong>(436,2)</strong></td><td class="num dd"><strong>−</strong></td></tr>
+            <tr class="dre-header"><td colspan="3">Saldos de Caixa</td></tr>
+            <tr><td>Saldo Inicial (01/01/2025)</td><td class="num">2.433,3</td><td></td></tr>
+            <tr><td>Saldo Final (31/12/2025)</td><td class="num">1.997,1</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
       <div class="insight" style="margin-top:12px;">
-        <div class="ilabel">⚠️ Fatores Principais</div>
-        <p>Da redução total de <strong>R$436 milhões</strong>, R$182 milhões são resultado operacional (déficit 2025), R$101 milhões pela saída de Brax e Fields (contratos não renovados), e R$81 milhões pelo pagamento da sentença judicial Icasa. Esses três eventos somam <strong>42%</strong> da variação total de caixa.</p>
+        <div class="ilabel">📋 Leitura da DFC</div>
+        <p>A redução de <strong>R$ 436 milhões</strong> no caixa é majoritariamente operacional (R$ 330 milhões), impulsionada pelo déficit do exercício (R$ 183 milhões) e pelo aumento de depósitos judiciais (R$ 87 milhões) e impostos a recuperar (R$ 59 milhões). O fluxo de investimento (R$ 45 milhões) reflete aquisição de imobilizado. Não houve atividade de financiamento relevante no período.</p>
       </div>
     </div>
   </div>
@@ -856,8 +982,8 @@ function printDashboard() {
     <div class="two" style="gap:16px;margin-bottom:0;">
       <div>
         <div style="margin-bottom:16px;">
-          <div style="font-size:12px;font-weight:600;color:var(--yellow);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">EBITDA Operacional</div>
-          <div style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.7;">O índice de EBITDA indica uma <strong style="color:var(--white);">retração das margens operacionais</strong> comparando 2025 com 2024. Esse comportamento reforça que a operação segue apresentando margem reduzida e baixa capacidade de geração de caixa operacional — reflexo direto do investimento máximo pré-Copa 2026.</div>
+          <div style="font-size:12px;font-weight:600;color:var(--yellow);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">EBITDA · −R$ 494 Mi (Margem −40,4%)</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.7;">O EBITDA de <strong style="color:var(--neg);">−R$ 494 milhões</strong> revela que a operação central da CBF — excluindo efeitos financeiros, fiscais e D&amp;A — consome mais do que gera. O resultado financeiro de <strong style="color:var(--white);">R$ 318 milhões</strong> (rendimentos do adiantamento Nike) é justamente o que sustenta o caixa, mas por definição é excluído do EBITDA. Fórmula: LL (−R$182Mi) − RF (+R$318Mi) + D&amp;A (R$6,7Mi) = −R$494Mi.</div>
         </div>
         <div>
           <div style="font-size:12px;font-weight:600;color:var(--pos);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">KANITZ · Índice de Solvência: 17,33</div>
@@ -869,11 +995,14 @@ function printDashboard() {
         <table style="font-size:12px;">
           <thead><tr><th>Evento</th><th style="text-align:right;">Impacto (R)</th></tr></thead>
           <tbody>
-            <tr><td>Contrato Brax (Série B + Copa Nordeste)</td><td class="num dd">−60 milhões</td></tr>
-            <tr><td>Contrato Fields (Competições Femininas)</td><td class="num dd">−41 milhões</td></tr>
-            <tr><td>Sentença Judicial Icasa</td><td class="num dd">−81 milhões</td></tr>
-            <tr><td>Redução jogos Seleção em casa (6→3)</td><td class="num dd">−60 milhões transmissão</td></tr>
-            <tr style="border-top:1px solid rgba(245,200,0,.3);"><td><strong>Total eventos não recorrentes</strong></td><td class="num dd"><strong>~−242 milhões</strong></td></tr>
+            <tr><td>Déficit do Exercício 2025</td><td class="num dd">−182,5 milhões</td></tr>
+            <tr><td>Aumento Depósitos Judiciais</td><td class="num dd">−86,9 milhões</td></tr>
+            <tr><td>Aumento Impostos a Recuperar</td><td class="num dd">−58,8 milhões</td></tr>
+            <tr><td>Redução Receitas Diferidas LP (Nike)</td><td class="num dd">−161,0 milhões</td></tr>
+            <tr><td>Compra de Imobilizado</td><td class="num dd">−45,1 milhões</td></tr>
+            <tr><td>Provisões Contingências (+)</td><td class="num du">+116,6 milhões</td></tr>
+            <tr><td>Depreciação e Amortização (+)</td><td class="num du">+6,3 milhões</td></tr>
+            <tr style="border-top:1px solid rgba(245,200,0,.3);"><td><strong>Variação Total (DFC)</strong></td><td class="num dd"><strong>−436,2 milhões</strong></td></tr>
           </tbody>
         </table>
         <div class="insight" style="margin-top:12px;">
@@ -885,7 +1014,7 @@ function printDashboard() {
   </div>
   <div class="ccard" style="margin-top:20px;">
     <div class="ctitle" style="margin-bottom:4px;">Índices de Liquidez · 2024 vs 2025</div>
-    <div class="csub" style="margin-bottom:16px;">Liquidez Corrente · Geral · Imediata — Fonte: Slide 8 da apresentação</div>
+    <div class="csub" style="margin-bottom:16px;">Liquidez Corrente · Geral · Imediata — Base: Balancete 31/12/2025 e 31/12/2024</div>
     <div class="cwrap" style="height:260px;"><canvas id="cliq"></canvas></div>
   </div>
 
@@ -914,6 +1043,8 @@ function sp(id) {
 Chart.defaults.color = '#ffffff';
 Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
 Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.plugins.legend.labels.color = '#ffffff';
+Chart.defaults.plugins.legend.labels.boxWidth = 10;
 
 const C = {y:'#F5C800',g:'#00963F',b:'#003DA5',pos:'#3FB950',neg:'#F85149',gray:'#8B949E',purple:'#bc8cff'};
 const done = new Set();
@@ -943,15 +1074,7 @@ function initCharts() {
           const ds=chart.data.datasets[0]; const total=ds.data.reduce((a,b)=>a+b,0);
           return chart.data.labels.map((lbl,i)=>{
             const pct=((ds.data[i]/total)*100).toFixed(1);
-            return {
-              text:lbl+' R$'+ds.data[i]+'Mi ('+pct+'%)',
-              fillStyle:ds.backgroundColor[i],
-              strokeStyle:ds.backgroundColor[i],
-              lineWidth:0,
-              index:i,
-              fontColor:'#ffffff', // força cor branca
-              color:'#ffffff'      // força cor branca
-            };
+            return {text:lbl+' R$'+ds.data[i]+'Mi ('+pct+'%)', fillStyle:ds.backgroundColor[i], strokeStyle:ds.backgroundColor[i], hidden:false, lineWidth:0, index:i, fontColor:'#ffffff', color:'#ffffff', textColor:'#ffffff'};
           });
         }
       }},
@@ -974,15 +1097,7 @@ function initCharts() {
           const ds=chart.data.datasets[0]; const total=ds.data.reduce((a,b)=>a+b,0);
           return chart.data.labels.map((lbl,i)=>{
             const pct=((ds.data[i]/total)*100).toFixed(1);
-            return {
-              text:lbl+' R$'+ds.data[i]+'Mi ('+pct+'%)',
-              fillStyle:ds.backgroundColor[i],
-              strokeStyle:ds.backgroundColor[i],
-              lineWidth:0,
-              index:i,
-              fontColor:'#ffffff', // força cor branca
-              color:'#ffffff'      // força cor branca
-            };
+            return {text:lbl+' R$'+ds.data[i]+'Mi ('+pct+'%)', fillStyle:ds.backgroundColor[i], strokeStyle:ds.backgroundColor[i], hidden:false, lineWidth:0, index:i, fontColor:'#ffffff', color:'#ffffff', textColor:'#ffffff'};
           });
         }
       }},
@@ -1007,8 +1122,8 @@ function initCharts() {
   safeChart('c4', {type:'bar', data:{
     labels:['Transmissão','Patrocínios','Bilheteria','Registros'],
     datasets:[
-      {label:'2024 (R$Mi)', data:[724,451,67,38], backgroundColor:'rgba(255,255,255,.15)', borderRadius:4},
-      {label:'2025 (R$Mi)', data:[638,438,55,51], backgroundColor:C.y, borderRadius:4}
+      {label:'2025 (R$Mi)', data:[638,438,55,51], backgroundColor:C.y, borderRadius:4},
+      {label:'2024 (R$Mi)', data:[724,451,67,38], backgroundColor:'rgba(255,255,255,.15)', borderRadius:4}
     ]
   }, options:{maintainAspectRatio:false,
     plugins:{
@@ -1017,7 +1132,7 @@ function initCharts() {
         label:function(ctx){
           const v2025=[638,438,55,51]; const v2024=[724,451,67,38];
           const i=ctx.dataIndex; const pct=((v2025[i]-v2024[i])/v2024[i]*100).toFixed(1);
-          return ' R$ '+ctx.parsed.y+' Mi'+(ctx.datasetIndex===1?' ('+pct+'% vs 2024)':'');
+          return ' R$ '+ctx.parsed.y+' Mi'+(ctx.datasetIndex===0?' ('+pct+'% vs 2024)':'');
         }
       }}
     },
@@ -1043,8 +1158,8 @@ function initCharts() {
   safeChart('c8', {type:'bar', data:{
     labels:['Sel. Principal','Sel. Base','Sel. Femininas'],
     datasets:[
-      {label:'2024 (R$Mi)', data:[201,27,116], backgroundColor:'rgba(255,255,255,.15)', borderRadius:4},
-      {label:'2025 (R$Mi)', data:[281,45,94], backgroundColor:C.y, borderRadius:4}
+      {label:'2025 (R$Mi)', data:[281,45,94], backgroundColor:C.y, borderRadius:4},
+      {label:'2024 (R$Mi)', data:[201,27,116], backgroundColor:'rgba(255,255,255,.15)', borderRadius:4}
     ]
   }, options:{maintainAspectRatio:false,
     plugins:{
@@ -1053,7 +1168,7 @@ function initCharts() {
         label:function(ctx){
           const v2025=[281,45,94]; const v2024=[201,27,116];
           const i=ctx.dataIndex; const pct=((v2025[i]-v2024[i])/v2024[i]*100).toFixed(1);
-          return ' R$ '+ctx.parsed.y+' Mi'+(ctx.datasetIndex===1?' ('+pct+'% vs 2024)':'');
+          return ' R$ '+ctx.parsed.y+' Mi'+(ctx.datasetIndex===0?' ('+pct+'% vs 2024)':'');
         }
       }}
     },
@@ -1104,35 +1219,41 @@ function initCharts() {
   }, options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{grid:{color:'rgba(255,255,255,.05)'}, ticks:{callback:v=>'R$'+v+'Mi'}}}}});
 
   safeChart('cind2', {type:'bar', data:{
-    labels:['Brax+Fields','Icasa','Outros','Res.Operacional','Rec.Financeira'],
-    datasets:[{label:'R$Mi', data:[-101,-81,-74,-182,318],
+    labels:['Déficit Exerc.','Dep.Judiciais','Impost.Recup.','Prov.Contingênc.','Rec.Diferida LP','Compra Imobil.','D&A'],
+    datasets:[{label:'R$ Mi', data:[-182.5,-86.9,-58.8,116.6,-161.0,-45.1,6.3],
       backgroundColor:(ctx)=>ctx.raw<0?'rgba(248,81,73,.7)':'rgba(63,185,80,.7)', borderRadius:4}]
-  }, options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{grid:{color:'rgba(255,255,255,.05)'}, ticks:{callback:v=>v+'Mi'}}}}});
+  }, options:{maintainAspectRatio:false,
+    plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:function(ctx){return ' R$ '+ctx.parsed.y.toFixed(1)+' Mi';}}}
+    },
+    scales:{x:{grid:{display:false}, ticks:{font:{size:10}}}, y:{grid:{color:'rgba(255,255,255,.05)'}, ticks:{callback:v=>v+'Mi'}}}}});
 
   // ── LIQUIDEZ ──
   safeChart('cliq', {type:'bar', data:{
     labels:['Liquidez Corrente','Liquidez Geral','Liquidez Imediata'],
     datasets:[
-      {label:'2024', data:[5.21,1.66,4.57], backgroundColor:'rgba(255,255,255,.18)', borderRadius:5},
-      {label:'2025', data:[6.14,1.59,5.08], backgroundColor:'rgba(63,185,80,.7)', borderRadius:5}
+      {label:'2025 (R$Mi)', data:[3.95,1.59,3.27], backgroundColor:C.y, borderRadius:4},
+      {label:'2024 (R$Mi)', data:[5.21,1.66,4.58], backgroundColor:'rgba(255,255,255,.15)', borderRadius:4}
     ]
   }, options:{maintainAspectRatio:false,
     plugins:{
       legend:{position:'bottom', labels:{color:'#ffffff', boxWidth:10}},
       tooltip:{callbacks:{label:function(ctx){
-        const ref=[1,1,1]; // reference = 1 (acima de 1 = solvente)
-        return ' '+ctx.parsed.y.toFixed(2)+' (ref. mín. > 1,0)';
+        const idx=ctx.dataIndex;
+        const labels=[['3,95','5,21'],['1,59','1,66'],['3,27','4,58']];
+        const yr=ctx.dataset.label;
+        return ' '+yr+': '+ctx.parsed.y.toFixed(2);
       }}}
     },
-    scales:{x:{grid:{display:false}}, y:{grid:{color:'rgba(255,255,255,.05)'}, min:0, max:8,
+    scales:{x:{grid:{display:false}}, y:{grid:{color:'rgba(255,255,255,.05)'}, min:0, max:7,
       ticks:{callback:v=>v.toFixed(1)}}}}});
 
   // ── DESPESAS OPERACIONAIS ──
   safeChart('cdespop1', {type:'bar', data:{
     labels:['Desp. Administrativas','Desp. Pessoal','Total OPEX'],
     datasets:[
-      {label:'2024', data:[145.8,50.3,196.1], backgroundColor:'rgba(255,255,255,.18)', borderRadius:5},
-      {label:'2025', data:[369.1,58.2,427.3], backgroundColor:'rgba(248,81,73,.7)', borderRadius:5}
+      {label:'2025', data:[369.1,58.2,427.3], backgroundColor:'rgba(248,81,73,.7)', borderRadius:5},
+      {label:'2024', data:[145.8,50.3,196.1], backgroundColor:'rgba(255,255,255,.15)', borderRadius:4}
     ]
   }, options:{maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{color:'#ffffff', boxWidth:10}}}, scales:{x:{grid:{display:false}}, y:{grid:{color:'rgba(255,255,255,.05)'}, ticks:{callback:v=>'R$'+v+'Mi'}}}}});
 
@@ -1174,35 +1295,51 @@ function initCharts() {
 
 function exportPDF() {
   const btn = document.querySelector('.pdf-btn');
-  const origText = btn.innerHTML;
+  const origHTML = btn.innerHTML;
   btn.innerHTML = '⏳ Preparando...';
   btn.disabled = true;
 
-  // Show all pages for printing
+  // 1. Ensure all pages are visible so charts can render
   const pages = document.querySelectorAll('.page');
-  const prevDisplay = [];
-  pages.forEach((p, i) => {
-    prevDisplay[i] = p.style.display;
+  pages.forEach(p => {
     p.style.display = 'block';
   });
 
-  // Wait for charts to render on newly visible pages, then print
+  // 2. Init all charts (renders hidden ones)
+  initCharts();
+
+  // 3. Set dark background on all canvases (Chart.js uses transparent bg)
+  function setCanvasBg(color) {
+    document.querySelectorAll('canvas').forEach(canvas => {
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      // Save current drawing
+      const img = canvas.toDataURL();
+      ctx.globalCompositeOperation = 'destination-over';
+      ctx.fillStyle = color;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.globalCompositeOperation = 'source-over';
+    });
+  }
+
+  // 4. Wait for render, set canvas bg, then print
   setTimeout(() => {
-    initCharts();
+    setCanvasBg('#0D1117');
+
     setTimeout(() => {
       window.print();
-      // Restore after print dialog
-      pages.forEach((p, i) => {
-        p.style.display = prevDisplay[i];
-      });
-      // Re-hide non-active pages
-      document.querySelectorAll('.page:not(.active)').forEach(p => {
-        p.style.display = '';
-      });
-      btn.innerHTML = origText;
-      btn.disabled = false;
-    }, 600);
-  }, 300);
+
+      // 5. After print dialog closes, restore state
+      setTimeout(() => {
+        pages.forEach(p => { p.style.display = ''; });
+        document.querySelectorAll('.page:not(.active)').forEach(p => {
+          p.style.display = '';
+        });
+        btn.innerHTML = origHTML;
+        btn.disabled = false;
+      }, 500);
+    }, 400);
+  }, 800);
 }
 
 initCharts();
