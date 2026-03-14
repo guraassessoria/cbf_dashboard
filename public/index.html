@@ -1049,18 +1049,27 @@ function sp(id) {
 Chart.defaults.color = '#ffffff';
 Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
 Chart.defaults.font.family = "'DM Sans', sans-serif";
-Chart.defaults.plugins.legend.labels.color = '#ffffff';
+Chart.defaults.responsive = true;
+  Chart.defaults.maintainAspectRatio = false;
+  Chart.defaults.plugins.legend.labels.color = '#ffffff';
 Chart.defaults.plugins.legend.labels.boxWidth = 10;
 
 const C = {y:'#F5C800',g:'#00963F',b:'#003DA5',pos:'#3FB950',neg:'#F85149',gray:'#8B949E',purple:'#bc8cff'};
 const done = new Set();
 
+const chartInstances = {};
 function safeChart(id, cfg) {
-  if (done.has(id)) return;
   const el = document.getElementById(id);
   if (!el) return;
+  // Destroy existing instance if any
+  if (chartInstances[id]) {
+    try { chartInstances[id].destroy(); } catch(e) {}
+    delete chartInstances[id];
+    done.delete(id);
+  }
+  if (done.has(id)) return;
   done.add(id);
-  new Chart(el, cfg);
+  chartInstances[id] = new Chart(el, cfg);
 }
 
 
@@ -1305,40 +1314,75 @@ function exportPDF() {
   btn.innerHTML = '⏳ Gerando PDF...';
   btn.disabled = true;
 
-  // 1. Reveal all pages so charts can render
+  // 1. Show all pages
   const pages = document.querySelectorAll('.page');
-  pages.forEach(p => { p.style.display = 'block'; });
+  const origDisplays = [];
+  pages.forEach((p, i) => {
+    origDisplays[i] = p.style.display;
+    p.style.display = 'block';
+  });
 
-  // 2. Initialize all charts (renders ones on hidden pages)
+  // 2. Force ALL .cwrap to full document width so charts render at print size
+  const printWidth = document.documentElement.clientWidth;
+  const cwraps = document.querySelectorAll('.cwrap');
+  const origWrapStyles = [];
+  cwraps.forEach((w, i) => {
+    origWrapStyles[i] = { width: w.style.width, height: w.style.height };
+    w.style.width  = printWidth + 'px';
+    w.style.height = (w.offsetHeight || 180) + 'px';
+  });
+
+  // 3. Clear done set and destroy all charts so they re-render at new size
+  done.clear();
+  Object.keys(chartInstances).forEach(id => {
+    try { chartInstances[id].destroy(); } catch(e) {}
+    delete chartInstances[id];
+  });
+
+  // 4. Recreate all charts at full width
   initCharts();
 
-  // 3. After render delay, paint dark backgrounds on all canvases
+  // 5. Paint dark canvas backgrounds
   function paintCanvases() {
     document.querySelectorAll('canvas').forEach(canvas => {
-      if (canvas.width === 0 || canvas.height === 0) return;
+      if (!canvas.width || !canvas.height) return;
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
+      ctx.save();
       ctx.globalCompositeOperation = 'destination-over';
       ctx.fillStyle = '#0D1117';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.globalCompositeOperation = 'source-over';
+      ctx.restore();
     });
   }
 
-  // 4. Wait 1.2s for all charts, paint, then print
+  // 6. Wait for render, paint, then print
   setTimeout(() => {
     paintCanvases();
     setTimeout(() => {
       window.print();
-      // Restore after print dialog closes
+
+      // Restore original layout after print
       setTimeout(() => {
-        pages.forEach(p => { p.style.display = ''; });
-        document.querySelectorAll('.page:not(.active)').forEach(p => { p.style.display = ''; });
+        cwraps.forEach((w, i) => {
+          w.style.width  = origWrapStyles[i].width;
+          w.style.height = origWrapStyles[i].height;
+        });
+        pages.forEach((p, i) => { p.style.display = origDisplays[i]; });
+
+        // Restore charts for screen
+        done.clear();
+        Object.keys(chartInstances).forEach(id => {
+          try { chartInstances[id].destroy(); } catch(e) {}
+          delete chartInstances[id];
+        });
+        initCharts();
+
         btn.innerHTML = origHTML;
         btn.disabled = false;
-      }, 800);
-    }, 300);
-  }, 1200);
+      }, 600);
+    }, 400);
+  }, 1500);
 }
 
 initCharts();
