@@ -122,19 +122,25 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
 
   /* ── Reset layout ── */
   body { margin: 0 !important; padding: 0 !important; }
-  .main { padding: 0 !important; margin: 0 !important; max-width: none !important; width: 100% !important; }
+  .main {
+    padding: 0 !important; margin: 0 !important;
+    max-width: none !important; width: 100% !important;
+    display: block !important;
+  }
 
   /* ── Each page ── */
   .page {
     display: block !important;
     width: 100% !important;
+    max-width: 100% !important;
     min-height: 0 !important;
-    padding: 14px 18px !important;
+    padding: 10px 14px !important;
+    margin: 0 !important;
     box-sizing: border-box !important;
     page-break-before: always !important;
     break-before: page !important;
     background: #0D1117 !important;
-    overflow: visible !important;
+    overflow: hidden !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
@@ -186,7 +192,9 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
     padding: 10px 12px !important;
     margin-bottom: 7px !important;
     width: 100% !important;
+    max-width: 100% !important;
     box-sizing: border-box !important;
+    overflow: hidden !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
@@ -198,11 +206,13 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
     display: grid !important;
     gap: 8px !important;
     width: 100% !important;
+    max-width: 100% !important;
     box-sizing: border-box !important;
+    overflow: hidden !important;
   }
-  .two  { grid-template-columns: 1fr 1fr !important; }
+  .two   { grid-template-columns: 1fr 1fr !important; }
   .cgrid { grid-template-columns: 1fr 1fr !important; }
-  .c32  { grid-template-columns: 2fr 1fr !important; }
+  .c32   { grid-template-columns: 2fr 1fr !important; }
 
   /* ── Charts ── */
   canvas {
@@ -211,13 +221,9 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
     max-width: 100% !important;
     display: block !important;
   }
-  .cwrap { width: 100% !important; height: 180px !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  #overview  .cwrap { height: 160px !important; }
-  #receitas  .cwrap { height: 200px !important; }
-  #despesas  .cwrap { height: 170px !important; }
-  #bp        .cwrap { height: 160px !important; }
-  #historico .cwrap { height: 170px !important; }
-  #indicadores .cwrap { height: 160px !important; }
+  /* cwrap: JS seta width/height via PRINT_CHART_HEIGHTS */
+  .cwrap { display: block !important; overflow: hidden !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .cwrap canvas { display: block !important; max-width: 100% !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
   /* ── DRE page: portrait, compact ── */
   .page.portrait { page: portrait-only; }
@@ -1308,81 +1314,92 @@ function initCharts() {
     scales:{x:{grid:{color:'rgba(255,255,255,.05)'}, ticks:{callback:v=>v+'Mi'}}, y:{grid:{display:false}}}}});
 }
 
-function exportPDF() {
-  const btn = document.querySelector('.pdf-btn');
-  const origHTML = btn.innerHTML;
-  btn.innerHTML = '⏳ Gerando PDF...';
-  btn.disabled = true;
+// Altura explícita por canvas para o print (A4 landscape útil ~960px de largura)
+const PRINT_CHART_HEIGHTS = {
+  c1:160, c2:160, c3:150,
+  c4:220,
+  c7:200, c8:200,
+  cbp1:200, cbp2:200, cbp3:170,
+  cind1:200, cind2:200, cliq:180,
+  c11:200, c12:200,
+  cdespop1:160, corc1:160, corc2:160
+};
+// A4 landscape: 297mm × 210mm → útil ~960px × 540px a 96dpi
+const A4_W = 960;
 
-  // 1. Show all pages
-  const pages = document.querySelectorAll('.page');
-  const origDisplays = [];
-  pages.forEach((p, i) => {
-    origDisplays[i] = p.style.display;
-    p.style.display = 'block';
-  });
+function prepareForPrint() {
+  // Mostrar todas as páginas
+  document.querySelectorAll('.page').forEach(p => { p.style.display = 'block'; });
 
-  // 2. Force ALL .cwrap to full document width so charts render at print size
-  const printWidth = document.documentElement.clientWidth;
-  const cwraps = document.querySelectorAll('.cwrap');
-  const origWrapStyles = [];
-  cwraps.forEach((w, i) => {
-    origWrapStyles[i] = { width: w.style.width, height: w.style.height };
-    w.style.width  = printWidth + 'px';
-    w.style.height = (w.offsetHeight || 180) + 'px';
-  });
-
-  // 3. Clear done set and destroy all charts so they re-render at new size
+  // Destruir charts existentes
   done.clear();
   Object.keys(chartInstances).forEach(id => {
     try { chartInstances[id].destroy(); } catch(e) {}
     delete chartInstances[id];
   });
 
-  // 4. Recreate all charts at full width
+  // Forçar dimensões corretas em cada cwrap
+  document.querySelectorAll('.cwrap').forEach(w => {
+    const canvas = w.querySelector('canvas');
+    const h = canvas ? (PRINT_CHART_HEIGHTS[canvas.id] || 160) : 160;
+    w.style.width  = A4_W + 'px';
+    w.style.height = h + 'px';
+  });
+
+  // Recriar todos os charts
   initCharts();
 
-  // 5. Paint dark canvas backgrounds
-  function paintCanvases() {
-    document.querySelectorAll('canvas').forEach(canvas => {
-      if (!canvas.width || !canvas.height) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      ctx.save();
-      ctx.globalCompositeOperation = 'destination-over';
-      ctx.fillStyle = '#0D1117';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.restore();
-    });
-  }
+  // Pintar fundo escuro
+  document.querySelectorAll('canvas').forEach(canvas => {
+    if (!canvas.width || !canvas.height) return;
+    const ctx2 = canvas.getContext('2d');
+    if (!ctx2) return;
+    ctx2.save();
+    ctx2.globalCompositeOperation = 'destination-over';
+    ctx2.fillStyle = '#0D1117';
+    ctx2.fillRect(0, 0, canvas.width, canvas.height);
+    ctx2.restore();
+  });
+}
 
-  // 6. Wait for render, paint, then print
+function restoreFromPrint() {
+  // Esconder todas as páginas não-ativas
+  const activeId = document.querySelector('.ntab.active')?.getAttribute('onclick')?.match(/'(\w+)'/)?.[1] || 'overview';
+  document.querySelectorAll('.page').forEach(p => {
+    p.style.display = (p.id === activeId) ? 'block' : '';
+  });
+
+  // Restaurar cwraps
+  document.querySelectorAll('.cwrap').forEach(w => {
+    w.style.width  = '';
+    w.style.height = '';
+  });
+
+  // Recriar charts para tela
+  done.clear();
+  Object.keys(chartInstances).forEach(id => {
+    try { chartInstances[id].destroy(); } catch(e) {}
+    delete chartInstances[id];
+  });
+  initCharts();
+}
+
+function exportPDF() {
+  const btn = document.querySelector('.pdf-btn');
+  const origHTML = btn.innerHTML;
+  btn.innerHTML = '⏳ Gerando PDF...';
+  btn.disabled = true;
+
+  prepareForPrint();
+
   setTimeout(() => {
-    paintCanvases();
+    window.print();
     setTimeout(() => {
-      window.print();
-
-      // Restore original layout after print
-      setTimeout(() => {
-        cwraps.forEach((w, i) => {
-          w.style.width  = origWrapStyles[i].width;
-          w.style.height = origWrapStyles[i].height;
-        });
-        pages.forEach((p, i) => { p.style.display = origDisplays[i]; });
-
-        // Restore charts for screen
-        done.clear();
-        Object.keys(chartInstances).forEach(id => {
-          try { chartInstances[id].destroy(); } catch(e) {}
-          delete chartInstances[id];
-        });
-        initCharts();
-
-        btn.innerHTML = origHTML;
-        btn.disabled = false;
-      }, 600);
-    }, 400);
-  }, 1500);
+      restoreFromPrint();
+      btn.innerHTML = origHTML;
+      btn.disabled = false;
+    }, 800);
+  }, 2000);
 }
 
 initCharts();
