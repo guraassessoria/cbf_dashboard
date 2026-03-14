@@ -10,7 +10,7 @@
 :root{--green:#00703C;--gl:#00963F;--gd:#004D26;--yellow:#F5C800;--blue:#002776;--bm:#003DA5;--white:#FAFAFA;--dark:#0D1117;--d2:#161B22;--gray:#8B949E;--g2:#6E7681;--bdr:rgba(255,255,255,0.08);--card:rgba(22,27,34,0.85);--pos:#3FB950;--neg:#F85149}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--white);min-height:100vh;overflow-x:hidden}
-header{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--gd) 0%,var(--blue) 60%,#000 100%);border-bottom:1px solid var(--bdr)}
+header{position:sticky;top:0;z-index:200;overflow:hidden;background:linear-gradient(135deg,var(--gd) 0%,var(--blue) 60%,#000 100%);border-bottom:1px solid var(--bdr)}
 .hbg{position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(0,112,60,.4) 0%,transparent 60%),radial-gradient(ellipse at 80% 30%,rgba(0,39,118,.5) 0%,transparent 60%)}
 .hstripe{position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--green),var(--yellow),var(--green))}
 .hi{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:32px 40px 28px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
@@ -24,13 +24,13 @@ header{position:relative;overflow:hidden;background:linear-gradient(135deg,var(-
 .yr{font-family:'Bebas Neue',sans-serif;font-size:56px;color:var(--yellow);line-height:1;text-shadow:0 0 40px rgba(245,200,0,.4)}
 .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(63,185,80,.15);border:1px solid rgba(63,185,80,.4);border-radius:100px;padding:4px 12px;font-size:11px;color:var(--pos);font-weight:500;margin-top:8px}
 .badge::before{content:'●';font-size:8px}
-nav{background:rgba(13,17,23,.95);border-bottom:1px solid var(--bdr);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;padding-right:16px}
+nav{background:rgba(13,17,23,.95);border-bottom:1px solid var(--bdr);position:sticky;top:0;z-index:150;backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;padding-right:16px}
 .ni{flex:1;min-width:0;max-width:1400px;margin:0 auto;padding:0 40px;display:flex;overflow-x:auto;scrollbar-width:none}
 .ni::-webkit-scrollbar{display:none}
 .ntab{padding:16px 22px;font-size:13px;font-weight:500;color:var(--gray);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;font-family:'DM Sans',sans-serif}
 .ntab:hover{color:var(--white)}
 .ntab.active{color:var(--yellow);border-bottom-color:var(--yellow)}
-.main{max-width:1400px;margin:0 auto;padding:40px;position:relative;z-index:1}
+.main{max-width:1400px;margin:0 auto;padding:40px;position:relative;z-index:1;scroll-margin-top:200px}
 .page{display:none;animation:fi .4s ease}
 .page.active{display:block}
 @keyframes fi{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -105,175 +105,152 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
 .pdf-btn:hover{background:var(--yellow);color:#000}
 
 /* ── PRINT / PDF STYLES ── */
-
-/* Named page types for per-page orientation */
 @page landscape-page { size: A4 landscape; margin: 0; }
 @page portrait-page  { size: A4 portrait;  margin: 0; }
 @page { margin: 0; }
 
 @media print {
-  /* ── Kill browser chrome ── */
+  /* ── Kill browser header/footer ── */
   html {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
   /* ── Hide UI chrome ── */
-  nav, footer, .pdf-btn { display: none !important; }
-  header { display: none !important; }
+  nav, footer, .pdf-btn, header { display: none !important; }
 
-  /* ── Body reset ── */
+  /* ── Body ── */
   body {
     background: #0D1117 !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    margin: 0 !important; padding: 0 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
+  .main { padding: 0 !important; margin: 0 !important; max-width: none !important; }
 
-  .main {
-    padding: 0 !important;
-    margin: 0 !important;
-    max-width: none !important;
-  }
-
-  /* ── Each page fills exactly one printed page ── */
+  /* ── Each page = one printed page ── */
   .page {
     display: block !important;
     width: 100% !important;
-    min-height: 100vh !important;
-    padding: 20px 28px !important;
+    padding: 16px 22px !important;
     box-sizing: border-box !important;
     page-break-before: always !important;
     break-before: page !important;
+    page-break-inside: avoid !important;
     background: #0D1117 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
-    overflow: hidden !important;
   }
-
-  /* First page: no page break before */
-  .page:first-of-type {
-    page-break-before: avoid !important;
-    break-before: avoid !important;
-  }
+  .page:first-of-type { page-break-before: avoid !important; break-before: avoid !important; }
 
   /* ── Orientation per page ── */
   .page.landscape { page: landscape-page; }
   .page.portrait  { page: portrait-page; }
 
-  /* ── Page title (slabel + stitle) — compact for print ── */
-  .slabel { font-size: 9px !important; margin-bottom: 4px !important; }
-  .stitle { font-size: 22px !important; margin-bottom: 14px !important; }
-
-  /* ── KPI grid ── */
-  .kgrid {
-    gap: 10px !important;
-    margin-bottom: 14px !important;
-  }
-  .kcard {
-    background: #161B22 !important;
-    border: 1px solid rgba(255,255,255,0.1) !important;
-    padding: 12px !important;
+  /* ── No breaks inside cards ── */
+  .ccard, .kcard, .insight, .two, table, .tl {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+
+  /* ── Page titles compact ── */
+  .slabel { font-size: 8px !important; margin-bottom: 2px !important; }
+  .stitle { font-size: 18px !important; margin-bottom: 10px !important; }
+
+  /* ── KPI grid — compact ── */
+  .kgrid { gap: 7px !important; margin-bottom: 10px !important; }
+  .kcard {
+    background: #161B22 !important; border: 1px solid rgba(255,255,255,0.1) !important;
+    padding: 9px 11px !important;
+    -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
     break-inside: avoid !important;
   }
-  .kcard::before {
-    background: linear-gradient(90deg, #00703C, #F5C800) !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-  .kval { font-size: 22px !important; color: #FAFAFA !important; }
-  .klabel { color: #8B949E !important; font-size: 10px !important; }
-  .kdelta { font-size: 10px !important; }
-  .ksub { font-size: 9px !important; }
+  .kcard::before { background: linear-gradient(90deg,#00703C,#F5C800) !important;
+    -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .kval  { font-size: 18px !important; color: #FAFAFA !important; margin-bottom: 4px !important; }
+  .klabel { font-size: 9px !important; margin-bottom: 6px !important; color: #8B949E !important; }
+  .kdelta { font-size: 9px !important; }
+  .ksub   { font-size: 8px !important; }
 
   /* ── Cards ── */
   .ccard {
-    background: #161B22 !important;
-    border: 1px solid rgba(255,255,255,0.08) !important;
-    padding: 16px !important;
-    margin-bottom: 12px !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    break-inside: avoid !important;
+    background: #161B22 !important; border: 1px solid rgba(255,255,255,0.08) !important;
+    padding: 12px 14px !important; margin-bottom: 8px !important;
+    -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
   }
-  .ctitle { color: #FAFAFA !important; font-size: 13px !important; }
-  .csub   { color: #8B949E !important; font-size: 11px !important; }
+  .ctitle { font-size: 12px !important; color: #FAFAFA !important; }
+  .csub   { font-size: 10px !important; color: #8B949E !important; }
 
   /* ── Charts ── */
-  .cwrap {
-    position: relative !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-  canvas {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    max-width: 100% !important;
-  }
+  .cwrap { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  canvas { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; max-width: 100% !important; }
+
+  /* ── DRE page — portrait, extra compact ── */
+  #balanco .ccard { padding: 8px 12px !important; margin-bottom: 6px !important; }
+  #balanco table  { font-size: 9px !important; }
+  #balanco th     { padding: 4px 8px !important; font-size: 8px !important; }
+  #balanco td     { padding: 5px 8px !important; }
+  #balanco .ctitle { font-size: 11px !important; margin-bottom: 8px !important; }
+  #balanco .insight { padding: 8px 12px !important; margin-top: 6px !important; }
+  #balanco .insight p { font-size: 10px !important; }
+  #balanco .stitle { font-size: 16px !important; margin-bottom: 8px !important; }
 
   /* ── Tables ── */
-  table { font-size: 10px !important; width: 100% !important; }
-  th { color: #8B949E !important; font-size: 9px !important; padding: 6px 8px !important; border-bottom: 1px solid rgba(255,255,255,0.08) !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  td { color: rgba(255,255,255,0.8) !important; padding: 7px 8px !important; border-bottom: 1px solid rgba(255,255,255,0.04) !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  td[style*="color:var(--neg)"] { color: var(--neg) !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  td[style*="color:var(--pos)"] { color: var(--pos) !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  .num { color: rgba(255,255,255,0.8) !important; }
-  .du  { color: #3FB950 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  .dd  { color: #F85149 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  .dre-row-total td { background: rgba(255,255,255,0.04) !important; font-weight: 600 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  table  { font-size: 10px !important; width: 100% !important; }
+  th     { color: #8B949E !important; font-size: 9px !important; padding: 5px 8px !important;
+           border-bottom: 1px solid rgba(255,255,255,.08) !important;
+           -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  td     { color: rgba(255,255,255,.8) !important; padding: 6px 8px !important;
+           border-bottom: 1px solid rgba(255,255,255,.04) !important;
+           -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  td[style*="color:var(--neg)"] { color: #F85149 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  td[style*="color:var(--pos)"] { color: #3FB950 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .num  { color: rgba(255,255,255,.8) !important; }
+  .du   { color: #3FB950 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .dd   { color: #F85149 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .dre-row-total td { background: rgba(255,255,255,.04) !important; font-weight: 600 !important;
+    -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
   .dre-header td { color: #F5C800 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
   /* ── Insight boxes ── */
-  .insight {
-    background: rgba(0,112,60,0.08) !important;
-    border-left: 3px solid #00963F !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    padding: 10px 14px !important;
-    margin-top: 8px !important;
-  }
-  .insight.warn { background: rgba(248,81,73,0.07) !important; border-left-color: #F85149 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  .insight p { font-size: 11px !important; color: rgba(255,255,255,0.72) !important; }
-  .ilabel { font-size: 9px !important; }
+  .insight { background: rgba(0,112,60,.08) !important; border-left: 3px solid #00963F !important;
+    -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
+    padding: 8px 12px !important; margin-top: 6px !important; }
+  .insight.warn { background: rgba(248,81,73,.07) !important; border-left-color: #F85149 !important;
+    -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .insight p  { font-size: 10px !important; color: rgba(255,255,255,.72) !important; }
+  .ilabel     { font-size: 8px !important; }
 
-  /* ── Two-column grid ── */
-  .two { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 14px !important; }
-  .cgrid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 14px !important; }
+  /* ── Two-column ── */
+  .two   { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+  .cgrid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
 
-  /* ── Chart heights per page (compact for A4) ── */
-  #overview   .cwrap { height: 180px !important; }
-  #receitas   .cwrap { height: 220px !important; }
-  #despesas   .cwrap { height: 200px !important; }
-  #balanco    .cwrap { height: 170px !important; }
-  #historico  .cwrap { height: 200px !important; }
-  #bp         .cwrap { height: 190px !important; }
-  #indicadores .cwrap { height: 190px !important; }
+  /* ── Chart heights ── */
+  #overview   .cwrap { height: 170px !important; }
+  #receitas   .cwrap { height: 200px !important; }
+  #despesas   .cwrap { height: 180px !important; }
+  #bp         .cwrap { height: 170px !important; }
+  #historico  .cwrap { height: 190px !important; }
+  #indicadores .cwrap { height: 180px !important; }
 
-  /* ── Badges, pills ── */
-  .badge {
-    background: rgba(63,185,80,0.15) !important;
-    border: 1px solid rgba(63,185,80,0.4) !important;
-    color: #3FB950 !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
-  /* ── Timeline ── */
-  .tl::before { background: linear-gradient(to bottom, #00703C, #F5C800, transparent) !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  .ti::before { background: #F5C800 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  .td { color: #F5C800 !important; font-size: 10px !important; }
-  .tt { font-size: 12px !important; }
-  .tx { font-size: 10px !important; }
+  /* ── BP kgrid: 6 cols to fit ── */
+  #bp .kgrid { grid-template-columns: repeat(6,1fr) !important; gap: 6px !important; margin-bottom: 8px !important; }
+  #bp .kval  { font-size: 14px !important; }
+  #bp .klabel { font-size: 8px !important; }
 
   /* ── Colors ── */
-  [style*="color:var(--neg)"], [style*="color:var(--pos)"], [style*="color:var(--yellow)"] {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
+  .badge { background: rgba(63,185,80,.15) !important; border: 1px solid rgba(63,185,80,.4) !important;
+    color: #3FB950 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .tl::before { background: linear-gradient(to bottom,#00703C,#F5C800,transparent) !important;
+    -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .ti::before { background: #F5C800 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .td { color: #F5C800 !important; font-size: 9px !important; }
+  .tt { font-size: 11px !important; } .tx { font-size: 9px !important; }
+  .cwrap { height: 180px !important; }
 }
+
 </style>
 </head>
 <body>
@@ -703,51 +680,6 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
   </div>
 </div>
 
-<!-- ═ HISTORICO ═ -->
-<div id="historico" class="page landscape">
-  <div class="slabel">// 05 — SÉRIE HISTÓRICA</div>
-  <div class="stitle">Evolução Financeira<br><span style="color:var(--yellow)">2021 → 2025</span></div>
-
-  <div class="ccard" style="margin-bottom:20px;">
-    <div class="ctitle" style="margin-bottom:4px;">Receita Bruta Anual · Série Histórica (R$ Mi)</div>
-    <div class="csub" style="margin-bottom:18px;">2021–2025 · dados reais DFS</div>
-    <div class="cwrap" style="height:260px;"><canvas id="c11"></canvas></div>
-    <div class="insight" style="margin-top:12px;">
-      <div class="ilabel">📈 Perspectiva 2026–2027</div>
-      <p>A queda de receita em 2025 (−8,4%) é pontual — ciclo de jogos mais fraco. <strong>2026</strong> projetado como ano excepcional com a Copa do Mundo FIFA. Em <strong>2027</strong>, entrada em vigor do <strong>novo contrato Nike</strong> representa salto estrutural de receita de patrocínio. A CBF possui R$2 bilhões em caixa para suportar este ciclo transitório.</p>
-    </div>
-  </div>
-
-  <div class="cgrid">
-    <div class="ccard">
-      <div class="ctitle" style="margin-bottom:4px;">Resultado vs Custos com Futebol</div>
-      <div class="csub" style="margin-bottom:18px;">Trade-off estratégico 2021–2025 (R$ Mi)</div>
-      <div class="cwrap" style="height:250px;"><canvas id="c12"></canvas></div>
-    </div>
-    <div class="ccard">
-      <div class="ctitle" style="margin-bottom:14px;">Indicadores de Solidez · Evolução</div>
-      <div class="pi" style="margin-bottom:22px;"><div class="ph"><span class="pl">Receita Bruta: +11,5% (2021→2025)</span><span class="pv">R$1,07→R$1,19 Bi</span></div><div class="pb" style="height:9px;"><div class="pf" style="width:40%;background:linear-gradient(90deg,var(--green),var(--yellow))"></div></div></div>
-      <div class="pi" style="margin-bottom:22px;"><div class="ph"><span class="pl">Ativo Total: +57% (2021→2025)</span><span class="pv">R$2,16→R$3,39 Bi</span></div><div class="pb" style="height:9px;"><div class="pf" style="width:70%;background:linear-gradient(90deg,var(--bm),var(--pos))"></div></div></div>
-      <div class="pi" style="margin-bottom:22px;"><div class="ph"><span class="pl">Rec. Financeiras: +141% 2024→2025</span><span class="pv">R$132→R$318 milhões</span></div><div class="pb" style="height:9px;"><div class="pf" style="width:85%;background:linear-gradient(90deg,var(--yellow),#ffaa00)"></div></div></div>
-      <div class="pi"><div class="ph"><span class="pl">Invest. Futebol: +63% (2023→2025)</span><span class="pv">R$723→R$1.177 milhões</span></div><div class="pb" style="height:9px;"><div class="pf" style="width:75%;background:linear-gradient(90deg,var(--pos),#00c88a)"></div></div></div>
-    </div>
-  </div>
-
-  <div class="ccard">
-    <div class="ctitle" style="margin-bottom:18px;">Marco Timeline · 2021–2027</div>
-    <div class="tl">
-      <div class="ti"><div class="td">2021</div><div class="tt">Ano Base · Superávit R$69 milhões</div><div class="tx">Primeiro ano da série. Receita ~R$1,07 Bi. Base para crescimento futuro.</div></div>
-      <div class="ti"><div class="td">2022</div><div class="tt">Copa do Mundo Qatar · Superávit R$143 milhões</div><div class="tx">Ano da Copa com receitas estáveis. Superávit de R$143 milhões (+107% vs 2021).</div></div>
-      <div class="ti"><div class="td">2023</div><div class="tt">Recorde de Superávit · R$238 milhões</div><div class="tx">Receita sobe para R$1,3 Bi. Ativos superam R$2 Bi. Liquidez livre de R$709 milhões.</div></div>
-      <div class="ti"><div class="td">Nov/Dez 2024</div><div class="tt">Contrato Nike Histórico · Adiantamento R$1,3 Bi recebido</div><div class="tx">Adiantamento transforma o balanço. Vigência do novo contrato a partir de 2027 até 2038. Caixa cresce para R$2,4 Bi.</div></div>
-      <div class="ti"><div class="td">2024</div><div class="tt">Receita Recorde · R$1,30 Bi · Superávit R$107 milhões</div><div class="tx">1ª vez que investimento supera R$1 Bi. Ativo total vai a R$3,6 Bi. Caixa +134%.</div></div>
-      <div class="ti"><div class="td">2025</div><div class="tt">Investimento Máximo Pré-Copa · Déficit R$182 milhões</div><div class="tx">Custos superam receita bruta. Seleção Principal +39,7%. Receitas financeiras (Nike) sustentam caixa em R$2 Bi.</div></div>
-      <div class="ti" style="opacity:.7;"><div class="td">2026</div><div class="tt">Copa do Mundo FIFA · Maior catalisador de receitas</div><div class="tx">Projeção de salto expressivo em transmissão, bilheteria e patrocínios pelo ciclo FIFA.</div></div>
-      <div class="ti" style="opacity:.6;border-left:none"><div class="td">2027 →</div><div class="tt">Novo Contrato Nike entra em Vigor · Salto Estrutural</div><div class="tx">Vigência do novo contrato Nike (2027–2038) representa próximo grande salto estrutural de receita de patrocínio da CBF.</div></div>
-    </div>
-  </div>
-</div>
-
 
 
 
@@ -756,7 +688,7 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
   <div class="slabel">// 05 — BALANÇO PATRIMONIAL</div>
   <div class="stitle">Composição<br><span style="color:var(--yellow)">Patrimonial · 2025 vs 2024</span></div>
 
-  <div class="kgrid">
+  <div class="kgrid" style="grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;">
     <div class="kcard">
       <div class="klabel">Ativo Total</div>
       <div class="kval">R$ 3,39 Bi</div>
@@ -1020,6 +952,53 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
 
 </div>
 
+<!-- ═ HISTORICO ═ -->
+<div id="historico" class="page landscape">
+  <div class="slabel">// 05 — SÉRIE HISTÓRICA</div>
+  <div class="stitle">Evolução Financeira<br><span style="color:var(--yellow)">2021 → 2025</span></div>
+
+  <div class="ccard" style="margin-bottom:20px;">
+    <div class="ctitle" style="margin-bottom:4px;">Receita Bruta Anual · Série Histórica (R$ Mi)</div>
+    <div class="csub" style="margin-bottom:18px;">2021–2025 · dados reais DFS</div>
+    <div class="cwrap" style="height:260px;"><canvas id="c11"></canvas></div>
+    <div class="insight" style="margin-top:12px;">
+      <div class="ilabel">📈 Perspectiva 2026–2027</div>
+      <p>A queda de receita em 2025 (−8,4%) é pontual — ciclo de jogos mais fraco. <strong>2026</strong> projetado como ano excepcional com a Copa do Mundo FIFA. Em <strong>2027</strong>, entrada em vigor do <strong>novo contrato Nike</strong> representa salto estrutural de receita de patrocínio. A CBF possui R$2 bilhões em caixa para suportar este ciclo transitório.</p>
+    </div>
+  </div>
+
+  <div class="cgrid">
+    <div class="ccard">
+      <div class="ctitle" style="margin-bottom:4px;">Resultado vs Custos com Futebol</div>
+      <div class="csub" style="margin-bottom:18px;">Trade-off estratégico 2021–2025 (R$ Mi)</div>
+      <div class="cwrap" style="height:250px;"><canvas id="c12"></canvas></div>
+    </div>
+    <div class="ccard">
+      <div class="ctitle" style="margin-bottom:14px;">Indicadores de Solidez · Evolução</div>
+      <div class="pi" style="margin-bottom:22px;"><div class="ph"><span class="pl">Receita Bruta: +11,5% (2021→2025)</span><span class="pv">R$1,07→R$1,19 Bi</span></div><div class="pb" style="height:9px;"><div class="pf" style="width:40%;background:linear-gradient(90deg,var(--green),var(--yellow))"></div></div></div>
+      <div class="pi" style="margin-bottom:22px;"><div class="ph"><span class="pl">Ativo Total: +57% (2021→2025)</span><span class="pv">R$2,16→R$3,39 Bi</span></div><div class="pb" style="height:9px;"><div class="pf" style="width:70%;background:linear-gradient(90deg,var(--bm),var(--pos))"></div></div></div>
+      <div class="pi" style="margin-bottom:22px;"><div class="ph"><span class="pl">Rec. Financeiras: +141% 2024→2025</span><span class="pv">R$132→R$318 milhões</span></div><div class="pb" style="height:9px;"><div class="pf" style="width:85%;background:linear-gradient(90deg,var(--yellow),#ffaa00)"></div></div></div>
+      <div class="pi"><div class="ph"><span class="pl">Invest. Futebol: +63% (2023→2025)</span><span class="pv">R$723→R$1.177 milhões</span></div><div class="pb" style="height:9px;"><div class="pf" style="width:75%;background:linear-gradient(90deg,var(--pos),#00c88a)"></div></div></div>
+    </div>
+  </div>
+
+  <div class="ccard">
+    <div class="ctitle" style="margin-bottom:18px;">Marco Timeline · 2021–2027</div>
+    <div class="tl">
+      <div class="ti"><div class="td">2021</div><div class="tt">Ano Base · Superávit R$69 milhões</div><div class="tx">Primeiro ano da série. Receita ~R$1,07 Bi. Base para crescimento futuro.</div></div>
+      <div class="ti"><div class="td">2022</div><div class="tt">Copa do Mundo Qatar · Superávit R$143 milhões</div><div class="tx">Ano da Copa com receitas estáveis. Superávit de R$143 milhões (+107% vs 2021).</div></div>
+      <div class="ti"><div class="td">2023</div><div class="tt">Recorde de Superávit · R$238 milhões</div><div class="tx">Receita sobe para R$1,3 Bi. Ativos superam R$2 Bi. Liquidez livre de R$709 milhões.</div></div>
+      <div class="ti"><div class="td">Nov/Dez 2024</div><div class="tt">Contrato Nike Histórico · Adiantamento R$1,3 Bi recebido</div><div class="tx">Adiantamento transforma o balanço. Vigência do novo contrato a partir de 2027 até 2038. Caixa cresce para R$2,4 Bi.</div></div>
+      <div class="ti"><div class="td">2024</div><div class="tt">Receita Recorde · R$1,30 Bi · Superávit R$107 milhões</div><div class="tx">1ª vez que investimento supera R$1 Bi. Ativo total vai a R$3,6 Bi. Caixa +134%.</div></div>
+      <div class="ti"><div class="td">2025</div><div class="tt">Investimento Máximo Pré-Copa · Déficit R$182 milhões</div><div class="tx">Custos superam receita bruta. Seleção Principal +39,7%. Receitas financeiras (Nike) sustentam caixa em R$2 Bi.</div></div>
+      <div class="ti" style="opacity:.7;"><div class="td">2026</div><div class="tt">Copa do Mundo FIFA · Maior catalisador de receitas</div><div class="tx">Projeção de salto expressivo em transmissão, bilheteria e patrocínios pelo ciclo FIFA.</div></div>
+      <div class="ti" style="opacity:.6;border-left:none"><div class="td">2027 →</div><div class="tt">Novo Contrato Nike entra em Vigor · Salto Estrutural</div><div class="tx">Vigência do novo contrato Nike (2027–2038) representa próximo grande salto estrutural de receita de patrocínio da CBF.</div></div>
+    </div>
+  </div>
+</div>
+
+
+
 
 
 </main>
@@ -1039,6 +1018,15 @@ function sp(id) {
   window.scrollTo({top:0,behavior:'smooth'});
   setTimeout(initCharts, 80);
 }
+
+// Keep nav below sticky header
+function adjustNavTop() {
+  const h = document.querySelector('header');
+  const n = document.querySelector('nav');
+  if (h && n) n.style.top = h.offsetHeight + 'px';
+}
+window.addEventListener('load', adjustNavTop);
+window.addEventListener('resize', adjustNavTop);
 
 Chart.defaults.color = '#ffffff';
 Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
@@ -1299,42 +1287,30 @@ function exportPDF() {
   btn.innerHTML = '⏳ Preparando...';
   btn.disabled = true;
 
-  // 1. Ensure all pages are visible so charts can render
-  const pages = document.querySelectorAll('.page');
-  pages.forEach(p => {
-    p.style.display = 'block';
-  });
+  // Show all pages
+  document.querySelectorAll('.page').forEach(p => { p.style.display = 'block'; });
 
-  // 2. Init all charts (renders hidden ones)
+  // Init all charts
   initCharts();
 
-  // 3. Set dark background on all canvases (Chart.js uses transparent bg)
-  function setCanvasBg(color) {
+  // Paint canvas backgrounds dark
+  function setCanvasBg() {
     document.querySelectorAll('canvas').forEach(canvas => {
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
-      // Save current drawing
-      const img = canvas.toDataURL();
       ctx.globalCompositeOperation = 'destination-over';
-      ctx.fillStyle = color;
+      ctx.fillStyle = '#0D1117';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.globalCompositeOperation = 'source-over';
     });
   }
 
-  // 4. Wait for render, set canvas bg, then print
   setTimeout(() => {
-    setCanvasBg('#0D1117');
-
+    setCanvasBg();
     setTimeout(() => {
       window.print();
-
-      // 5. After print dialog closes, restore state
       setTimeout(() => {
-        pages.forEach(p => { p.style.display = ''; });
-        document.querySelectorAll('.page:not(.active)').forEach(p => {
-          p.style.display = '';
-        });
+        document.querySelectorAll('.page:not(.active)').forEach(p => { p.style.display = ''; });
         btn.innerHTML = origHTML;
         btn.disabled = false;
       }, 500);
