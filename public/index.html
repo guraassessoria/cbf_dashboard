@@ -7,10 +7,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
+.sticky-chrome{position:sticky;top:0;z-index:200;}
+
 :root{--green:#00703C;--gl:#00963F;--gd:#004D26;--yellow:#F5C800;--blue:#002776;--bm:#003DA5;--white:#FAFAFA;--dark:#0D1117;--d2:#161B22;--gray:#8B949E;--g2:#6E7681;--bdr:rgba(255,255,255,0.08);--card:rgba(22,27,34,0.85);--pos:#3FB950;--neg:#F85149}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--white);min-height:100vh;overflow-x:hidden}
-header{position:sticky;top:0;z-index:200;overflow:hidden;background:linear-gradient(135deg,var(--gd) 0%,var(--blue) 60%,#000 100%);border-bottom:1px solid var(--bdr)}
+header{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--gd) 0%,var(--blue) 60%,#000 100%);border-bottom:1px solid var(--bdr)}
 .hbg{position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(0,112,60,.4) 0%,transparent 60%),radial-gradient(ellipse at 80% 30%,rgba(0,39,118,.5) 0%,transparent 60%)}
 .hstripe{position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--green),var(--yellow),var(--green))}
 .hi{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:32px 40px 28px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
@@ -24,13 +26,13 @@ header{position:sticky;top:0;z-index:200;overflow:hidden;background:linear-gradi
 .yr{font-family:'Bebas Neue',sans-serif;font-size:56px;color:var(--yellow);line-height:1;text-shadow:0 0 40px rgba(245,200,0,.4)}
 .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(63,185,80,.15);border:1px solid rgba(63,185,80,.4);border-radius:100px;padding:4px 12px;font-size:11px;color:var(--pos);font-weight:500;margin-top:8px}
 .badge::before{content:'●';font-size:8px}
-nav{background:rgba(13,17,23,.95);border-bottom:1px solid var(--bdr);position:sticky;top:0;z-index:150;backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;padding-right:16px}
+nav{background:rgba(13,17,23,.95);border-bottom:1px solid var(--bdr);position:relative;backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;padding-right:16px}
 .ni{flex:1;min-width:0;max-width:1400px;margin:0 auto;padding:0 40px;display:flex;overflow-x:auto;scrollbar-width:none}
 .ni::-webkit-scrollbar{display:none}
 .ntab{padding:16px 22px;font-size:13px;font-weight:500;color:var(--gray);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;font-family:'DM Sans',sans-serif}
 .ntab:hover{color:var(--white)}
 .ntab.active{color:var(--yellow);border-bottom-color:var(--yellow)}
-.main{max-width:1400px;margin:0 auto;padding:40px;position:relative;z-index:1;scroll-margin-top:200px}
+.main{max-width:1400px;margin:0 auto;padding:40px;position:relative;z-index:1}
 .page{display:none;animation:fi .4s ease;min-height:0}
 .page.active{display:block}
 @keyframes fi{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -117,7 +119,7 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
   }
 
   /* ── Hide UI chrome ── */
-  nav, footer, .pdf-btn, header { display: none !important; }
+  nav, footer, .pdf-btn, header, .sticky-chrome { display: none !important; }
 
   /* ── Body ── */
   body {
@@ -255,6 +257,7 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
 </head>
 <body>
 
+<div class="sticky-chrome">
 <header>
   <div class="hbg"></div>
   <div class="hi">
@@ -272,7 +275,6 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
   </div>
   <div class="hstripe"></div>
 </header>
-
 <nav>
   <div class="ni">
     <button class="ntab active" onclick="sp('overview')">Visão Geral</button>
@@ -288,6 +290,7 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
     Exportar PDF
   </button>
 </nav>
+</div>
 
 <main class="main">
 
@@ -1019,20 +1022,7 @@ function sp(id) {
   setTimeout(initCharts, 80);
 }
 
-// Keep nav below sticky header
-function adjustNavTop() {
-  const h = document.querySelector('header');
-  const n = document.querySelector('nav');
-  if (h && n) {
-    const hh = h.getBoundingClientRect().height;
-    n.style.top = hh + 'px';
-    document.querySelector('.main').style.paddingTop = '20px';
-  }
-}
-adjustNavTop();
-window.addEventListener('load', adjustNavTop);
-window.addEventListener('resize', adjustNavTop);
-document.fonts && document.fonts.ready.then(adjustNavTop);
+// Sticky chrome handled by CSS wrapper
 
 Chart.defaults.color = '#ffffff';
 Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
