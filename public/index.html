@@ -150,8 +150,8 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
   .two, .cgrid, .c32 { display: grid !important; gap: 7px !important; width: 100% !important; box-sizing: border-box !important; }
   .two { grid-template-columns: 1fr 1fr !important; } .cgrid { grid-template-columns: 1fr 1fr !important; } .c32 { grid-template-columns: 2fr 1fr !important; }
   .cwrap { display: block !important; width: 100% !important; box-sizing: border-box !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  #overview  .cwrap { height: 170px !important; } #receitas  .cwrap { height: 210px !important; } #despesas  .cwrap { height: 175px !important; }
-  #bp        .cwrap { height: 175px !important; } #indicadores .cwrap { height: 170px !important; } #historico  .cwrap { height: 180px !important; }
+  #overview  .cwrap { height: 200px !important; } #receitas  .cwrap { height: 240px !important; } #despesas  .cwrap { height: 200px !important; }
+  #bp        .cwrap { height: 200px !important; } #indicadores .cwrap { height: 200px !important; } #historico  .cwrap { height: 210px !important; }
   .cwrap canvas { display: block !important; width: 100% !important; height: 100% !important; max-width: 100% !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
   table { font-size: 9px !important; width: 100% !important; border-collapse: collapse !important; break-inside: avoid !important; }
   th { color: #8B949E !important; font-size: 8px !important; padding: 3px 6px !important; border-bottom: 1px solid rgba(255,255,255,.08) !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -1392,7 +1392,7 @@ async function exportPDF() {
   });
 
   // Recriar charts em largura de captura
-  const CAPTURE_W = 1800;
+  const CAPTURE_W = 900;
   const cwraps = document.querySelectorAll('.cwrap');
   const origWrapStyles = [];
   cwraps.forEach((cw, i) => {
@@ -1425,9 +1425,9 @@ async function exportPDF() {
   try {
     const { jsPDF } = window.jspdf;
     // PDF em landscape A4
-    const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-    const PDF_W = 297; // mm landscape largura
-    const PDF_H = 210; // mm landscape altura
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const PDF_W = 210; // mm portrait largura
+    const PDF_H = 297; // mm portrait altura
 
     for (let i = 0; i < pages.length; i++) {
       const page = pages[i];
