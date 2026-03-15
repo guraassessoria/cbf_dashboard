@@ -6,8 +6,7 @@
 <title>CBF — Demonstrações Financeiras 2025</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
 .sticky-chrome{position:sticky;top:0;z-index:200;}
 
@@ -1341,29 +1340,17 @@ function initCharts() {
     scales:{x:{grid:{color:'rgba(255,255,255,.05)'}, ticks:{callback:v=>v+'Mi'}}, y:{grid:{display:false}}}}});
 }
 
-async function exportPDF() {
+function exportPDF() {
   const btn = document.querySelector('.pdf-btn');
   const origHTML = btn.innerHTML;
+  btn.innerHTML = '⏳ Gerando PDF...';
   btn.disabled = true;
 
-  // A4 portrait em px a 150dpi: 794 x 1123px
-  // Cada página do dashboard (landscape) vira uma imagem rotacionada 90°
-  // e é inserida deitada numa página A4 portrait
-  const PDF_W_MM = 210;   // A4 portrait largura
-  const PDF_H_MM = 297;   // A4 portrait altura
-  const SCALE    = 2;     // qualidade 2x
-
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
+  // 1. Mostrar todas as páginas
   const pages = document.querySelectorAll('.page');
-  const activeId = document.querySelector('.ntab.active')
-    ?.getAttribute('onclick')?.match(/'(\w+)'/)?.[1] || 'overview';
-
-  // Mostrar todas as páginas para captura
   pages.forEach(p => { p.style.display = 'block'; });
 
-  // Normalizar styles inline
+  // 2. Normalizar styles inline problemáticos
   const _fixed = [];
   document.querySelectorAll('[style]').forEach(el => {
     const orig = el.getAttribute('style') || '';
@@ -1373,17 +1360,31 @@ async function exportPDF() {
     }
     if (/flex-shrink\s*:\s*0/.test(orig)) patch.flexShrink = '1';
     if (/min-width\s*:\s*240px/.test(orig)) { patch.minWidth = '0'; patch.flex = '1'; }
-    if (/gap\s*:\s*32px/.test(orig)) patch.gap = '8px';
+    if (/gap\s*:\s*32px/.test(orig))    patch.gap = '8px';
     if (/font-size\s*:\s*56px/.test(orig)) patch.fontSize = '26px';
     if (/font-size\s*:\s*80px/.test(orig)) patch.fontSize = '32px';
     if (/font-size\s*:\s*70px/.test(orig)) patch.fontSize = '30px';
-    if (Object.keys(patch).length) {
-      Object.assign(el.style, patch);
-      _fixed.push({ el, orig });
-    }
+    if (Object.keys(patch).length) { Object.assign(el.style, patch); _fixed.push({ el, orig }); }
   });
 
-  // Pintar fundo escuro nos canvas antes da captura
+  // 3. Recriar charts na largura de impressão (landscape A4 ≈ 1122px a 96dpi)
+  const PRINT_W = 1122;
+  const cwraps = document.querySelectorAll('.cwrap');
+  const origWrapStyles = [];
+  cwraps.forEach((cw, i) => {
+    origWrapStyles[i] = cw.getAttribute('style') || '';
+    cw.style.width = PRINT_W + 'px';
+    cw.style.display = 'block';
+  });
+
+  done.clear();
+  Object.keys(chartInstances).forEach(id => {
+    try { chartInstances[id].destroy(); } catch(e) {}
+    delete chartInstances[id];
+  });
+  initCharts();
+
+  // 4. Pintar fundo escuro nos canvas
   function paintBg() {
     document.querySelectorAll('canvas').forEach(cv => {
       if (!cv.width || !cv.height) return;
@@ -1397,80 +1398,34 @@ async function exportPDF() {
     });
   }
 
-  // Aguardar render
-  await new Promise(r => setTimeout(r, 2500));
-  paintBg();
-  await new Promise(r => setTimeout(r, 300));
+  setTimeout(() => {
+    paintBg();
+    setTimeout(() => {
+      window.print();
 
-  let paginaAtual = 0;
-  for (const page of pages) {
-    btn.innerHTML = `⏳ Capturando página ${paginaAtual + 1}/${pages.length}...`;
-
-    try {
-      const canvas = await html2canvas(page, {
-        scale: SCALE,
-        useCORS: true,
-        backgroundColor: '#0D1117',
-        logging: false,
-        allowTaint: true,
-        foreignObjectRendering: false,
-        imageTimeout: 15000,
-      });
-
-      const imgData = canvas.toDataURL('image/jpeg', 0.92);
-
-      // Dimensões da imagem capturada (landscape)
-      const imgW = canvas.width;   // px largura (landscape)
-      const imgH = canvas.height;  // px altura  (landscape)
-
-      // No PDF portrait, a imagem vai rotacionada 90°:
-      // - largura da imagem → ocupa a altura do PDF (297mm)
-      // - altura da imagem  → ocupa a largura do PDF (210mm)
-      const ratio  = imgW / imgH;
-      // Ajustar para caber exatamente na página portrait com margens mínimas
-      const margin = 4; // mm
-      const dispW  = PDF_H_MM - margin * 2; // 289mm (altura da imagem no PDF)
-      const dispH  = dispW / ratio;         // altura proporcional
-
-      // Centralizar verticalmente no PDF portrait
-      const offsetY = (PDF_W_MM - dispH) / 2;
-
-      if (paginaAtual > 0) pdf.addPage();
-
-      // Salvar estado, transladar e rotacionar 90° para encaixar landscape em portrait
-      pdf.saveGraphicsState();
-      // Origem no canto inferior esquerdo da página → rotacionar +90°
-      pdf.addImage(
-        imgData, 'JPEG',
-        -offsetY,           // x: deslocamento negativo para centralizar
-        margin,             // y: margem superior
-        dispH,              // w: largura no PDF (altura da imagem original)
-        dispW,              // h: altura no PDF (largura da imagem original)
-        undefined,
-        'FAST',
-        -90                 // rotação em graus
-      );
-      pdf.restoreGraphicsState();
-
-    } catch(e) {
-      console.error('Erro ao capturar página:', e);
-    }
-
-    paginaAtual++;
-  }
-
-  btn.innerHTML = '⏳ Gerando arquivo...';
-  pdf.save('CBF-DFS-2025.pdf');
-
-  // Restaurar estado da tela
-  _fixed.forEach(({ el, orig }) => el.setAttribute('style', orig));
-  pages.forEach(p => {
-    p.style.display = (p.id === activeId) ? 'block' : '';
-  });
-
-  btn.innerHTML = origHTML;
-  btn.disabled = false;
+      // 5. Restaurar após o print
+      setTimeout(() => {
+        _fixed.forEach(({ el, orig }) => el.setAttribute('style', orig));
+        cwraps.forEach((cw, i) => {
+          if (origWrapStyles[i]) cw.setAttribute('style', origWrapStyles[i]);
+          else cw.removeAttribute('style');
+        });
+        const activeId = document.querySelector('.ntab.active')
+          ?.getAttribute('onclick')?.match(/'(\w+)'/)?.[1] || 'overview';
+        pages.forEach(p => { p.style.display = (p.id === activeId) ? 'block' : ''; });
+        done.clear();
+        Object.keys(chartInstances).forEach(id => {
+          try { chartInstances[id].destroy(); } catch(e) {}
+          delete chartInstances[id];
+        });
+        initCharts();
+        btn.innerHTML = origHTML;
+        btn.disabled = false;
+      }, 800);
+    }, 600);
+  }, 2500);
 }
+
 initCharts();
 </script>
 <script>
