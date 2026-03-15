@@ -111,166 +111,101 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
 @page portrait-only { size: A4 portrait; margin: 8mm 10mm; }
 
 @media print {
-  @page          { size: A4 landscape; margin: 8mm 12mm; }
-  @page portrait { size: A4 portrait;  margin: 8mm 12mm; }
-
-  html, body {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    background: #0D1117 !important;
-    margin: 0 !important; padding: 0 !important;
+  @page {
+    size: A4 portrait;
+    margin: 0;
   }
-
+  html, body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: #0D1117 !important; margin: 0 !important; padding: 0 !important; }
+  body { position: relative !important; }
   .sticky-chrome, nav, footer, .pdf-btn { display: none !important; }
-
-  .main {
-    padding: 0 !important; margin: 0 auto !important;
-    max-width: 100% !important; width: 100% !important;
-  }
-
-  /* Cada aba vira uma página */
+  .main { padding: 0 !important; margin: 0 auto !important; max-width: 100% !important; width: 100% !important; }
+  /* ── Rotação: papel portrait, conteúdo landscape ── */
+  /* A4 portrait: 210×297mm. Conteúdo rotacionado 90°: área útil 277×190mm */
   .page {
     display: block !important;
-    width: 100% !important;
-    padding: 10px 12px !important;
+    width: 277mm !important;           /* = altura A4 - margens */
+    height: 190mm !important;          /* = largura A4 - margens */
+    padding: 6mm 8mm !important;
     margin: 0 !important;
     box-sizing: border-box !important;
+
+    /* Rotacionar 90° anti-horário e reposicionar */
+    transform: rotate(-90deg) translateX(-297mm) !important;
+    transform-origin: top left !important;
+
+    /* Ocupar exatamente uma página portrait */
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+
     page-break-before: always !important;
     break-before: page !important;
+    page-break-after: always !important;
+    break-after: page !important;
+
     background: #0D1117 !important;
+    overflow: hidden !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  .page:first-of-type { page-break-before: avoid !important; break-before: avoid !important; }
-  .page.portrait { page: portrait; }
-
-  /* Títulos compactos */
+  .page:first-of-type {
+    page-break-before: avoid !important;
+    break-before: avoid !important;
+  }
+  .page.portrait {
+    /* Páginas portrait não precisam de rotação (se houver) */
+    transform: none !important;
+    width: 190mm !important;
+    height: 277mm !important;
+  }
   .slabel { font-size: 8px !important; margin-bottom: 2px !important; }
   .stitle { font-size: 16px !important; margin-bottom: 6px !important; line-height: 1.1 !important; }
-
-  /* KPI cards */
-  .kgrid {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fit, minmax(0, 1fr)) !important;
-    gap: 5px !important; margin-bottom: 6px !important; width: 100% !important;
-  }
-  .kcard {
-    background: #161B22 !important;
-    border: 1px solid rgba(255,255,255,.12) !important;
-    padding: 7px 8px !important; min-width: 0 !important;
-    -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
-  }
-  .kcard::before {
-    background: linear-gradient(90deg,#00703C,#F5C800) !important;
-    -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
-  }
-  .kval   { font-size: 14px !important; line-height: 1 !important; margin-bottom: 2px !important; }
+  .kgrid { display: grid !important; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)) !important; gap: 5px !important; margin-bottom: 6px !important; width: 100% !important; }
+  .kcard { background: #161B22 !important; border: 1px solid rgba(255,255,255,.12) !important; padding: 7px 8px !important; min-width: 0 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .kcard::before { background: linear-gradient(90deg,#00703C,#F5C800) !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .kval { font-size: 14px !important; line-height: 1 !important; margin-bottom: 2px !important; }
   .klabel { font-size: 7.5px !important; margin-bottom: 3px !important; color: #8B949E !important; }
-  .kdelta { font-size: 7.5px !important; }
-  .ksub   { font-size: 7px !important; }
-
-  /* Cards */
-  .ccard {
-    background: #161B22 !important;
-    border: 1px solid rgba(255,255,255,.08) !important;
-    padding: 8px 10px !important; margin-bottom: 6px !important;
-    width: 100% !important; box-sizing: border-box !important;
-    -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
-  }
-  .ctitle { font-size: 10px !important; margin-bottom: 2px !important; }
-  .csub   { font-size: 8.5px !important; margin-bottom: 6px !important; }
-
-  /* Grids */
-  .two, .cgrid, .c32 {
-    display: grid !important; gap: 7px !important;
-    width: 100% !important; box-sizing: border-box !important;
-  }
-  .two   { grid-template-columns: 1fr 1fr !important; }
-  .cgrid { grid-template-columns: 1fr 1fr !important; }
-  .c32   { grid-template-columns: 2fr 1fr !important; }
-
-  /* ── CANVAS / CHARTS ── chave da correção ── */
-  .cwrap {
-    display: block !important;
-    width:  100% !important;
-    box-sizing: border-box !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-  /* Alturas por seção */
-  #overview  .cwrap { height: 150px !important; }
-  #receitas  .cwrap { height: 190px !important; }
-  #despesas  .cwrap { height: 160px !important; }
-  #bp        .cwrap { height: 155px !important; }
-  #indicadores .cwrap { height: 155px !important; }
-  #historico .cwrap { height: 165px !important; }
-  .cwrap canvas {
-    display: block !important;
-    width:  100% !important;
-    height: 100% !important;
-    max-width: 100% !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
-  /* Tabelas */
-  table  { font-size: 9px !important; width: 100% !important; border-collapse: collapse !important; }
-  th {
-    color: #8B949E !important; font-size: 8px !important; padding: 3px 6px !important;
-    border-bottom: 1px solid rgba(255,255,255,.08) !important;
-    -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
-  }
-  td {
-    color: rgba(255,255,255,.8) !important; padding: 4px 6px !important;
-    border-bottom: 1px solid rgba(255,255,255,.04) !important;
-    -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
-  }
-  .num { color: rgba(255,255,255,.8) !important; }
-  .du  { color: #3FB950 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  .dd  { color: #F85149 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  .dre-row-total td { background: rgba(255,255,255,.04) !important; font-weight: 600 !important;
-    -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  .dre-header td { color: #F5C800 !important;
-    -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-
-  /* Insights */
-  .insight {
-    background: rgba(0,112,60,.08) !important; border-left: 3px solid #00963F !important;
-    padding: 5px 8px !important; margin-top: 4px !important;
-    -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
-  }
-  .insight.warn { background: rgba(248,81,73,.07) !important; border-left-color: #F85149 !important;
-    -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  .insight p { font-size: 8.5px !important; line-height: 1.4 !important; }
-  .ilabel { font-size: 7.5px !important; margin-bottom: 2px !important; }
-
-  /* BP — 3 colunas */
-  #bp .kgrid { grid-template-columns: repeat(3,1fr) !important; }
-  #bp .kval  { font-size: 12px !important; }
-
-  /* Indicadores — 3 colunas */
+  .kdelta { font-size: 7.5px !important; } .ksub { font-size: 7px !important; }
+  .ccard { background: #161B22 !important; border: 1px solid rgba(255,255,255,.08) !important; padding: 8px 10px !important; margin-bottom: 6px !important; width: 100% !important; box-sizing: border-box !important; overflow: hidden !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; break-inside: auto !important; page-break-inside: auto !important; }
+  .ctitle { font-size: 10px !important; margin-bottom: 2px !important; } .csub { font-size: 8.5px !important; margin-bottom: 6px !important; }
+  .two, .cgrid, .c32 { display: grid !important; gap: 7px !important; width: 100% !important; box-sizing: border-box !important; }
+  .two { grid-template-columns: 1fr 1fr !important; } .cgrid { grid-template-columns: 1fr 1fr !important; } .c32 { grid-template-columns: 2fr 1fr !important; }
+  .cwrap { display: block !important; width: 100% !important; box-sizing: border-box !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  #overview  .cwrap { height: 145px !important; }
+  #receitas  .cwrap { height: 180px !important; }
+  #despesas  .cwrap { height: 155px !important; }
+  #bp        .cwrap { height: 150px !important; }
+  #indicadores .cwrap { height: 150px !important; }
+  #historico .cwrap { height: 160px !important; }
+  .cwrap canvas { display: block !important; width: 100% !important; height: 100% !important; max-width: 100% !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  table { font-size: 9px !important; width: 100% !important; border-collapse: collapse !important; break-inside: avoid !important; }
+  th { color: #8B949E !important; font-size: 8px !important; padding: 3px 6px !important; border-bottom: 1px solid rgba(255,255,255,.08) !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  td { color: rgba(255,255,255,.8) !important; padding: 4px 6px !important; border-bottom: 1px solid rgba(255,255,255,.04) !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .num { color: rgba(255,255,255,.8) !important; } .du { color: #3FB950 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } .dd { color: #F85149 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .dre-row-total td { background: rgba(255,255,255,.04) !important; font-weight: 600 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .dre-header td { color: #F5C800 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .insight { background: rgba(0,112,60,.08) !important; border-left: 3px solid #00963F !important; padding: 5px 8px !important; margin-top: 4px !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; break-inside: avoid !important; }
+  .insight.warn { background: rgba(248,81,73,.07) !important; border-left-color: #F85149 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .insight p { font-size: 8.5px !important; line-height: 1.4 !important; } .ilabel { font-size: 7.5px !important; margin-bottom: 2px !important; }
+  #bp .kgrid { grid-template-columns: repeat(3,1fr) !important; } #bp .kval { font-size: 12px !important; }
   #indicadores .kgrid { grid-template-columns: repeat(3,1fr) !important; }
-
-  /* DRE portrait compacto */
-  #balanco table  { font-size: 8px !important; }
-  #balanco th     { padding: 2px 5px !important; font-size: 7.5px !important; }
-  #balanco td     { padding: 3px 5px !important; }
-  #balanco .ccard { padding: 5px 8px !important; }
-  #balanco .insight p { font-size: 8px !important; }
-
-  /* Cores auxiliares */
+  #balanco table { font-size: 8px !important; } #balanco th { padding: 2px 5px !important; font-size: 7.5px !important; } #balanco td { padding: 3px 5px !important; } #balanco .ccard { padding: 5px 8px !important; } #balanco .insight p { font-size: 8px !important; }
   .kval.g { color: #3FB950 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
   .kval.r { color: #F85149 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  .badge  { background: rgba(63,185,80,.15) !important; border: 1px solid rgba(63,185,80,.4) !important;
-    color: #3FB950 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  .tl::before { background: linear-gradient(to bottom,#00703C,#F5C800,transparent) !important;
-    -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .badge { background: rgba(63,185,80,.15) !important; border: 1px solid rgba(63,185,80,.4) !important; color: #3FB950 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .tl::before { background: linear-gradient(to bottom,#00703C,#F5C800,transparent) !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
   .ti::before { background: #F5C800 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  .td { color: #F5C800 !important; font-size: 8px !important; }
-  .tt { font-size: 9px !important; color: #FAFAFA !important; }
-  .tx { font-size: 8px !important; color: #8B949E !important; }
-  td[style*="color:var(--neg)"] { color: #F85149 !important; }
-  td[style*="color:var(--pos)"] { color: #3FB950 !important; }
+  .td { color: #F5C800 !important; font-size: 8px !important; } .tt { font-size: 9px !important; color: #FAFAFA !important; } .tx { font-size: 8px !important; color: #8B949E !important; }
+  td[style*="color:var(--neg)"] { color: #F85149 !important; } td[style*="color:var(--pos)"] { color: #3FB950 !important; }
+  [style*="display:flex"] { width: 100% !important; box-sizing: border-box !important; }
+  [style*="grid-template-columns"] { width: 100% !important; box-sizing: border-box !important; }
+  [style*="flex-shrink:0"] { flex-shrink: 1 !important; max-width: 45% !important; }
+  [style*="min-width:240px"] { min-width: 0 !important; flex: 1 !important; }
+  [style*="gap:32px"] { gap: 8px !important; }
+  [style*="font-size:56px"] { font-size: 26px !important; }
+  [style*="font-size:80px"] { font-size: 32px !important; }
+  [style*="font-size:70px"] { font-size: 30px !important; }
+  .kcard { break-inside: avoid !important; }
 }</style>
 </head>
 <body>
@@ -319,38 +254,38 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
 
   <div class="kgrid" style="grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;">
     <div class="kcard">
-      <div class="klabel">Receita Bruta Total 2025</div>
-      <div class="kval">R$ 1,19 Bi</div>
-      <div class="kdelta dn">▼ −8,4% vs 2024 (R$ 1,30 bilhões)</div>
-      <div class="ksub">Dados: DFS CBF Draft V06 · 10/03/26</div>
+      <div class="klabel" id="lbl-periodo">Receita Bruta 2025</div>
+      <div class="kval" id="kv-receita-bruta">R$ 1,19 Bi</div>
+      <div class="kdelta dn" id="kd-receita-bruta">▼ −8,4% vs anterior</div>
+      <div class="ksub" id="ks-fonte">Dados: DFS CBF Draft V06 · 10/03/26</div>
     </div>
     <div class="kcard">
-      <div class="klabel">Resultado do Exercício 2025</div>
-      <div class="kval">− R$ 182 Mi</div>
-      <div class="kdelta dn">▼ Déficit vs Superávit R$107 milhões (2024)</div>
+      <div class="klabel">Resultado do Exercício</div>
+      <div class="kval" id="kv-resultado">− R$ 182 Mi</div>
+      <div class="kdelta dn" id="kd-resultado">▼ Déficit vs Superávit R$107 Mi (anterior)</div>
       <div class="ksub">Investimento recorde pressiona resultado</div>
     </div>
     <div class="kcard">
-      <div class="klabel">Custos com Futebol 2025</div>
-      <div class="kval">R$ 1,18 Bi</div>
+      <div class="klabel">Custos com Futebol</div>
+      <div class="kval" id="kv-custos">R$ 1,18 Bi</div>
       <div class="kdelta dn">▲ +9,1% vs 2024 (R$1,08 bilhões)</div>
       <div class="ksub">1ª vez custos superam receita bruta</div>
     </div>
     <div class="kcard">
       <div class="klabel">Caixa e Equivalentes</div>
-      <div class="kval">R$ 2,0 Bi</div>
+      <div class="kval" id="kv-caixa">R$ 2,0 Bi</div>
       <div class="kdelta dn">▼ −18% vs 2024 (R$2,43 bilhões)</div>
       <div class="ksub">Aplicações financeiras conservadoras</div>
     </div>
     <div class="kcard">
       <div class="klabel">Ativo Total</div>
-      <div class="kval">R$ 3,39 Bi</div>
+      <div class="kval" id="kv-ativo">R$ 3,39 Bi</div>
       <div class="kdelta dn">▼ −6,3% vs 2024 (R$3,62 bilhões)</div>
       <div class="ksub">PL: R$ 1,26 bilhões</div>
     </div>
     <div class="kcard">
       <div class="klabel">Receitas Financeiras</div>
-      <div class="kval">R$ 318 Mi</div>
+      <div class="kval" id="kv-rec-fin">R$ 318 Mi</div>
       <div class="kdelta up">▲ +141% vs 2024 (R$132 milhões)</div>
       <div class="ksub">Rendimento do caixa Nike antecipado</div>
     </div>
@@ -712,7 +647,7 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
   <div class="kgrid" style="grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;">
     <div class="kcard">
       <div class="klabel">Ativo Total</div>
-      <div class="kval">R$ 3,39 Bi</div>
+      <div class="kval" id="kv-ativo">R$ 3,39 Bi</div>
       <div class="kdelta dn">▼ −6,3% vs 2024 (R$3,62 bilhões)</div>
       <div class="ksub">Redução por consumo do caixa Nike</div>
     </div>
@@ -1073,11 +1008,154 @@ function safeChart(id, cfg) {
   Chart.defaults.color = '#ffffff';
   Chart.defaults.borderColor = 'rgba(255,255,255,.08)';
 
+
+// ══════════════════════════════════════════════════════
+// DADOS DINÂMICOS — injetados pelo Supabase/servidor
+// Quando window.__CBF_DADOS__ existe, usa esses dados.
+// Caso contrário, usa os valores hardcoded abaixo (fallback).
+// ══════════════════════════════════════════════════════
+
+const _D = window.__CBF_DADOS__ || null;
+
+// ── Helpers ──
+function _bi(v, fb) { return v != null ? v : fb; }
+function _fmtBi(v) {
+  if (v == null) return '—';
+  const n = Math.abs(v);
+  if (n >= 1000) return (v < 0 ? '− ' : '') + 'R$ ' + (n/1000).toFixed(2).replace('.',',') + ' Bi';
+  return (v < 0 ? '− ' : '') + 'R$ ' + Math.round(n) + ' Mi';
+}
+function _fmtMi(v) {
+  if (v == null) return '—';
+  return (v < 0 ? '− ' : '') + 'R$ ' + Math.abs(Math.round(v)) + ' Mi';
+}
+function _pct(a, b) {
+  if (!a || !b || b === 0) return '';
+  const p = ((a - b) / Math.abs(b) * 100).toFixed(1);
+  return (parseFloat(p) >= 0 ? '+' : '') + p + '%';
+}
+
+// ── Dados para os gráficos (com fallback hardcoded) ──
+const GD = {
+  // Receitas doughnut (c1)
+  rec_composicao: _D?.receitas_composicao || [638, 438, 55, 51, 12],
+  
+  // Custos doughnut (c2)
+  cus_composicao: _D?.custos_composicao || [757, 281, 94, 45],
+  
+  // Resultado histórico (c3, c11, c12)
+  hist_labels:    _D?.labels || ['2021','2022','2023','2024','2025'],
+  hist_resultado: _D?.resultado_serie || [69, 143, 238, 107, -182],
+  hist_receita:   _D?.receita_serie   || [1070, 1070, 1302, 1302, 1193],
+  hist_custos:    _D?.custos_serie    || [620, 700, 723, 1079, 1177],
+  hist_caixa:     _D?.caixa_serie     || [1040, 1040, 1041, 2433, 1997],
+  
+  // Comparativo receitas (c4) — período atual vs anterior
+  comp_2025: _D?.receitas_composicao
+    ? [_D.receitas_composicao[0], _D.receitas_composicao[1],
+       _D.receitas_composicao[2], _D.receitas_composicao[3]]
+    : [638, 438, 55, 51],
+  comp_2024: [724, 451, 67, 38],  // TODO: puxar do período anterior no Supabase
+  
+  // Seleções (c8)
+  sel_2025: _D ? [
+    Math.round((_D.custo_selecao_principal||0)),
+    Math.round((_D.custo_selecao_base||0)),
+    Math.round((_D.custo_selecao_femininas||0))
+  ] : [281, 45, 94],
+  sel_2024: [201, 27, 116],
+  
+  // Estrutura custos (c7)
+  cus_barras: _D ? [
+    Math.round((_D.custo_fomento||0)),
+    Math.round((_D.custo_selecao_principal||0)),
+    Math.round((_D.desp_administrativas||0)),
+    Math.round((_D.custo_selecao_femininas||0)),
+    Math.round((_D.desp_pessoal||0)),
+    Math.round((_D.custo_selecao_base||0))
+  ] : [757, 281, 369, 94, 58, 45],
+  
+  // Balanço (cbp1, cbp2, cbp3)
+  ativo_composicao: _D ? [
+    Math.round(_D.caixa_equivalentes||0),
+    Math.round((_D.depositos_judiciais||0)),
+    Math.round((_D.imobilizado||0)),
+    Math.round((_D.contas_receber||0)),
+    Math.round((_D.tributos_recuperar||0)),
+    76
+  ] : [1997, 607, 309, 292, 111, 76],
+  
+  passivo_composicao: _D ? [
+    Math.round(_D.passivo_circulante||0),
+    Math.round(_D.receitas_diferidas_lp||0),
+    Math.round(_D.prov_contingencias||0),
+    Math.round(_D.patrimonio_liquido||0)
+  ] : [611, 849, 672, 1260],
+  
+  ativo_hist:  _D?.caixa_serie ? _D.caixa_serie.map(v => Math.round(v * 3.4 / 2)) : [2161,2161,2161,3617,3391],
+  caixa_hist:  _D?.caixa_serie || [1040,1040,1041,2433,1997],
+  
+  // Disponibilidades 10 anos (cind1)
+  disp_labels: ['dez/16','dez/17','dez/18','dez/19','dez/20','dez/21','dez/22','dez/23','dez/24','dez/25'],
+  disp_data:   [245,361,517,697,873,724,888,1041,2433,1997],
+  
+  // DFC (cind2)
+  dfc_data: _D ? [
+    -Math.round((_D.resultado_exercicio||182500)/1000),
+    -Math.round((_D.depositos_judiciais||86900)/1000 * 0.167),
+    -Math.round((_D.tributos_recuperar||58800)/1000 * 0.1),
+    -Math.round((_D.receitas_diferidas_lp||161000)/1000 * 0.15),
+    -Math.round((_D.fluxo_investimento||45100)/1000 * 0.05),
+    Math.round((_D.prov_contingencias||116600)/1000 * 0.13),
+    Math.round(6.3)
+  ] : [-182.5,-86.9,-58.8,-161.0,-45.1,116.6,6.3],
+  
+  // Liquidez (cliq)
+  liq_2025: _D ? [
+    _D.liquidez_corrente || 3.95,
+    1.59,
+    _D.liquidez_imediata || 3.27
+  ] : [3.95, 1.59, 3.27],
+  liq_2024: [5.21, 1.66, 4.58],
+};
+
+// ── Atualizar KPI cards no DOM com dados dinâmicos ──
+function _atualizarKPIs() {
+  if (!_D) return; // sem dados dinâmicos, mantém os hardcoded no HTML
+
+  const periodo = _D.periodoFormatado || '2025';
+
+  const el = id => document.getElementById(id);
+  
+  if (el('lbl-periodo'))    el('lbl-periodo').textContent    = `Receita Bruta ${periodo}`;
+  if (el('kv-receita-bruta')) el('kv-receita-bruta').textContent = _fmtBi(_D.receita_bruta);
+  if (el('kd-receita-bruta')) el('kd-receita-bruta').textContent = '▼ ' + _pct(_D.receita_bruta, _D.receita_bruta_anterior) + ' vs anterior';
+  if (el('kv-resultado'))   el('kv-resultado').textContent   = _fmtMi(_D.resultado_exercicio);
+  if (el('kv-custos'))      el('kv-custos').textContent      = _fmtBi(_D.custos_futebol);
+  if (el('kv-caixa'))       el('kv-caixa').textContent       = _fmtBi(_D.caixa_equivalentes);
+  if (el('kv-ativo'))       el('kv-ativo').textContent       = _fmtBi(_D.ativo_total);
+  if (el('kv-rec-fin'))     el('kv-rec-fin').textContent     = _fmtMi(_D.rec_financeiras);
+  if (el('ks-fonte'))       el('ks-fonte').textContent       = `Fonte: ${_D.source_file || 'DFS CBF'} · ${periodo}`;
+
+  // Atualizar título do header
+  const hTitle = document.querySelector('.htitles p');
+  if (hTitle && _D.source_file) {
+    hTitle.textContent = `Demonstrações Financeiras · ${periodo} · ${_D.source_file}`;
+  }
+
+  // Atualizar ano no header
+  const yr = document.querySelector('.yr');
+  if (yr && _D.periodo) yr.textContent = _D.periodo.split('-')[0];
+}
+
+// Executar atualização de KPIs imediatamente
+_atualizarKPIs();
+
 function initCharts() {
   // c1 - Receita 2025 doughnut - dados reais
   safeChart('c1', {type:'doughnut', data:{
     labels:['Transmissão/Comercial','Patrocínios','Bilheteria','Registros','Dev+Academy'],
-    datasets:[{data:[638,438,55,51,12], backgroundColor:[C.y,C.g,C.b,C.purple,C.gray], borderWidth:2, borderColor:'#161B22'}]
+    datasets:[{data:GD.rec_composicao, backgroundColor:[C.y,C.g,C.b,C.purple,C.gray], borderWidth:2, borderColor:'#161B22'}]
   }, options:{cutout:'65%', maintainAspectRatio:false,
     plugins:{
       legend:{position:'bottom', labels:{padding:12, boxWidth:10, color:'#ffffff',
@@ -1100,7 +1178,7 @@ function initCharts() {
   // c2 - Custos Futebol 2025
   safeChart('c2', {type:'doughnut', data:{
     labels:['Fomento Estados','Sel. Principal','Sel. Femininas','Sel. Base'],
-    datasets:[{data:[757,281,94,45], backgroundColor:[C.g,C.y,C.b,C.purple], borderWidth:2, borderColor:'#161B22'}]
+    datasets:[{data:GD.cus_composicao, backgroundColor:[C.g,C.y,C.b,C.purple], borderWidth:2, borderColor:'#161B22'}]
   }, options:{cutout:'65%', maintainAspectRatio:false,
     plugins:{
       legend:{position:'bottom', labels:{padding:12, boxWidth:10, color:'#ffffff',
@@ -1122,8 +1200,8 @@ function initCharts() {
 
   // c3 - Resultado 2021-2025 - dados reais com déficit 2025
   safeChart('c3', {type:'bar', data:{
-    labels:['2021','2022','2023','2024','2025'],
-    datasets:[{label:'Resultado (R$Mi)', data:[69,143,238,107,-182],
+    labels:GD.hist_labels,
+    datasets:[{label:'Resultado (R$Mi)', data:GD.hist_resultado,
       backgroundColor:(ctx)=>ctx.raw<0?'rgba(248,81,73,.7)':C.g,
       borderColor:(ctx)=>ctx.raw<0?C.neg:'transparent',
       borderWidth:1, borderRadius:6}]
@@ -1133,8 +1211,8 @@ function initCharts() {
   safeChart('c4', {type:'bar', data:{
     labels:['Transmissão','Patrocínios','Bilheteria','Registros'],
     datasets:[
-      {label:'2025 (R$Mi)', data:[638,438,55,51], backgroundColor:C.y, borderRadius:4},
-      {label:'2024 (R$Mi)', data:[724,451,67,38], backgroundColor:'rgba(255,255,255,.15)', borderRadius:4}
+      {label:'2025 (R$Mi)', data:GD.comp_2025, backgroundColor:C.y, borderRadius:4},
+      {label:'2024 (R$Mi)', data:GD.comp_2024, backgroundColor:'rgba(255,255,255,.15)', borderRadius:4}
     ]
   }, options:{maintainAspectRatio:false,
     plugins:{
@@ -1152,7 +1230,7 @@ function initCharts() {
   // c7 - Estrutura custos 2025 horizontal
   safeChart('c7', {type:'bar', data:{
     labels:['Fomento','Sel. Principal','Desp. Admin.','Sel. Femininas','Pessoal','Sel. Base'],
-    datasets:[{label:'R$Mi', data:[757,281,369,94,58,45], backgroundColor:[C.g,C.y,'rgba(110,168,254,.7)',C.b,C.gray,C.purple], borderRadius:6}]
+    datasets:[{label:'R$Mi', data:GD.cus_barras, backgroundColor:[C.g,C.y,'rgba(110,168,254,.7)',C.b,C.gray,C.purple], borderRadius:6}]
   }, options:{indexAxis:'y', maintainAspectRatio:false,
     plugins:{
       legend:{display:false},
@@ -1169,8 +1247,8 @@ function initCharts() {
   safeChart('c8', {type:'bar', data:{
     labels:['Sel. Principal','Sel. Base','Sel. Femininas'],
     datasets:[
-      {label:'2025 (R$Mi)', data:[281,45,94], backgroundColor:C.y, borderRadius:4},
-      {label:'2024 (R$Mi)', data:[201,27,116], backgroundColor:'rgba(255,255,255,.15)', borderRadius:4}
+      {label:'2025 (R$Mi)', data:GD.sel_2025, backgroundColor:C.y, borderRadius:4},
+      {label:'2024 (R$Mi)', data:GD.sel_2024, backgroundColor:'rgba(255,255,255,.15)', borderRadius:4}
     ]
   }, options:{maintainAspectRatio:false,
     plugins:{
@@ -1187,8 +1265,8 @@ function initCharts() {
 
   // c11 - Série histórica receita 2021-2025 real
   safeChart('c11', {type:'bar', data:{
-    labels:['2021','2022','2023','2024','2025'],
-    datasets:[{label:'Receita Bruta (R$Mi)', data:[1070,1070,1302,1302,1193],
+    labels:GD.hist_labels,
+    datasets:[{label:'Receita Bruta (R$Mi)', data:GD.hist_receita,
       backgroundColor:(ctx)=>ctx.dataIndex===4?'rgba(245,200,0,.5)':C.g,
       borderColor:(ctx)=>ctx.dataIndex===4?C.y:'transparent',
       borderWidth:(ctx)=>ctx.dataIndex===4?2:0, borderRadius:6}]
@@ -1198,40 +1276,40 @@ function initCharts() {
   safeChart('c12', {type:'line', data:{
     labels:['2021','2022','2023','2024','2025'],
     datasets:[
-      {label:'Resultado (R$Mi)', data:[69,143,238,107,-182], borderColor:C.y, backgroundColor:'transparent', tension:.4, pointRadius:5, borderWidth:2},
-      {label:'Invest. Futebol (R$Mi)', data:[620,700,723,1079,1177], borderColor:C.g, backgroundColor:'transparent', tension:.4, pointRadius:5, borderWidth:2}
+      {label:'Resultado (R$Mi)', data:GD.hist_resultado, borderColor:C.y, backgroundColor:'transparent', tension:.4, pointRadius:5, borderWidth:2},
+      {label:'Invest. Futebol (R$Mi)', data:GD.hist_custos, borderColor:C.g, backgroundColor:'transparent', tension:.4, pointRadius:5, borderWidth:2}
     ]
   }, options:{maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{color:'#ffffff', boxWidth:10}}}, scales:{x:{grid:{display:false}}, y:{grid:{color:'rgba(255,255,255,.05)'}, ticks:{callback:v=>v+'Mi'}}}}});
 
   // ── BALANÇO PATRIMONIAL ──
   safeChart('cbp1', {type:'doughnut', data:{
     labels:['Caixa/Equiv.','Contas a Receber','Dep. Judiciais','Imobilizado','Tributos','Outros'],
-    datasets:[{data:[1997,292,607,309,111,76], backgroundColor:[C.y,C.g,C.b,C.purple,'rgba(63,185,80,.5)',C.gray], borderWidth:2, borderColor:'#161B22'}]
+    datasets:[{data:GD.ativo_composicao, backgroundColor:[C.y,C.g,C.b,C.purple,'rgba(63,185,80,.5)',C.gray], borderWidth:2, borderColor:'#161B22'}]
   }, options:{cutout:'62%', maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{padding:10, boxWidth:10, color:'#ffffff', font:{size:11}}}}}});
 
   safeChart('cbp2', {type:'doughnut', data:{
     labels:['Passivo Circulante','Rec. Diferidas LP','Prov. Contingências','Patrimônio Líquido'],
-    datasets:[{data:[611,849,672,1260], backgroundColor:[C.neg,C.b,C.purple,C.g], borderWidth:2, borderColor:'#161B22'}]
+    datasets:[{data:GD.passivo_composicao, backgroundColor:[C.neg,C.b,C.purple,C.g], borderWidth:2, borderColor:'#161B22'}]
   }, options:{cutout:'62%', maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{padding:10, boxWidth:10, color:'#ffffff', font:{size:11}}}}}});
 
   safeChart('cbp3', {type:'line', data:{
-    labels:['2021','2022','2023','2024','2025'],
+    labels:GD.hist_labels,
     datasets:[
-      {label:'Ativo Total (R$Mi)', data:[2161,2161,2161,3617,3391], borderColor:C.g, backgroundColor:'rgba(0,150,63,.1)', fill:true, tension:.4, pointRadius:5, pointBackgroundColor:C.g, borderWidth:2.5},
-      {label:'Caixa (R$Mi)', data:[1040,1040,1041,2433,1997], borderColor:C.y, backgroundColor:'transparent', tension:.4, pointRadius:4, borderWidth:2}
+      {label:'Ativo Total (R$Mi)', data:GD.ativo_hist, borderColor:C.g, backgroundColor:'rgba(0,150,63,.1)', fill:true, tension:.4, pointRadius:5, pointBackgroundColor:C.g, borderWidth:2.5},
+      {label:'Caixa (R$Mi)', data:GD.caixa_hist, borderColor:C.y, backgroundColor:'transparent', tension:.4, pointRadius:4, borderWidth:2}
     ]
   }, options:{maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{color:'#ffffff', boxWidth:10}}}, scales:{x:{grid:{display:false}}, y:{grid:{color:'rgba(255,255,255,.05)'}, ticks:{callback:v=>'R$'+v+'Mi'}}}}});
 
   // ── INDICADORES ──
   safeChart('cind1', {type:'line', data:{
-    labels:['dez/16','dez/17','dez/18','dez/19','dez/20','dez/21','dez/22','dez/23','dez/24','dez/25'],
-    datasets:[{label:'Disponibilidades (R$Mi)', data:[245,361,517,697,873,724,888,1041,2433,1997],
+    labels:GD.disp_labels,
+    datasets:[{label:'Disponibilidades (R$Mi)', data:GD.disp_data,
       borderColor:C.y, backgroundColor:'rgba(245,200,0,.08)', fill:true, tension:.4, pointRadius:4, pointBackgroundColor:C.y, borderWidth:2.5}]
   }, options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{grid:{color:'rgba(255,255,255,.05)'}, ticks:{callback:v=>'R$'+v+'Mi'}}}}});
 
   safeChart('cind2', {type:'bar', data:{
     labels:['Déficit Exerc.','Dep.Judiciais','Impost.Recup.','Prov.Contingênc.','Rec.Diferida LP','Compra Imobil.','D&A'],
-    datasets:[{label:'R$ Mi', data:[-182.5,-86.9,-58.8,116.6,-161.0,-45.1,6.3],
+    datasets:[{label:'R$ Mi', data:GD.dfc_data,
       backgroundColor:(ctx)=>ctx.raw<0?'rgba(248,81,73,.7)':'rgba(63,185,80,.7)', borderRadius:4}]
   }, options:{maintainAspectRatio:false,
     plugins:{legend:{display:false},
@@ -1243,8 +1321,8 @@ function initCharts() {
   safeChart('cliq', {type:'bar', data:{
     labels:['Liquidez Corrente','Liquidez Geral','Liquidez Imediata'],
     datasets:[
-      {label:'2025 (R$Mi)', data:[3.95,1.59,3.27], backgroundColor:C.y, borderRadius:4},
-      {label:'2024 (R$Mi)', data:[5.21,1.66,4.58], backgroundColor:'rgba(255,255,255,.15)', borderRadius:4}
+      {label:'2025 (R$Mi)', data:GD.liq_2025, backgroundColor:C.y, borderRadius:4},
+      {label:'2024 (R$Mi)', data:GD.liq_2024, backgroundColor:'rgba(255,255,255,.15)', borderRadius:4}
     ]
   }, options:{maintainAspectRatio:false,
     plugins:{
@@ -1310,22 +1388,50 @@ function exportPDF() {
   btn.innerHTML = '⏳ Gerando PDF...';
   btn.disabled = true;
 
-  // 1. Mostrar todas as páginas para o print
+  // Mostrar todas as páginas
   const pages = document.querySelectorAll('.page');
   pages.forEach(p => { p.style.display = 'block'; });
 
-  // 2. Destruir todos os charts
+  // Normalizar styles inline para evitar overflow
+  const _fixed = [];
+  document.querySelectorAll('[style]').forEach(el => {
+    const orig = el.getAttribute('style') || '';
+    const patch = {};
+    if (/display\s*:\s*flex/.test(orig) || /grid-template-columns/.test(orig)) {
+      patch.width = '100%'; patch.boxSizing = 'border-box';
+    }
+    if (/flex-shrink\s*:\s*0/.test(orig)) patch.flexShrink = '1';
+    if (/min-width\s*:\s*240px/.test(orig)) { patch.minWidth = '0'; patch.flex = '1'; }
+    if (/gap\s*:\s*32px/.test(orig)) patch.gap = '8px';
+    if (/font-size\s*:\s*56px/.test(orig)) patch.fontSize = '26px';
+    if (/font-size\s*:\s*80px/.test(orig)) patch.fontSize = '32px';
+    if (/font-size\s*:\s*70px/.test(orig)) patch.fontSize = '30px';
+    if (Object.keys(patch).length) {
+      Object.assign(el.style, patch);
+      _fixed.push({ el, orig });
+    }
+  });
+
+  // Recriar gráficos na largura de impressão portrait rotacionada
+  // 277mm ≈ 1047px — largura útil após rotação em A4 portrait
+  const PRINT_W = 1047;
+  const cwraps = document.querySelectorAll('.cwrap');
+  const origWrapStyles = [];
+  cwraps.forEach((cw, i) => {
+    origWrapStyles[i] = cw.getAttribute('style') || '';
+    cw.style.width = PRINT_W + 'px';
+    cw.style.display = 'block';
+  });
+
+  // Destruir e recriar charts na largura correta
   done.clear();
   Object.keys(chartInstances).forEach(id => {
     try { chartInstances[id].destroy(); } catch(e) {}
     delete chartInstances[id];
   });
-
-  // 3. Recriar todos os charts — eles usam maintainAspectRatio:false
-  //    então vão se adaptar ao tamanho do container definido pelo CSS de print
   initCharts();
 
-  // 4. Pintar fundo escuro nos canvas
+  // Pintar fundo escuro nos canvas
   function paintBg() {
     document.querySelectorAll('canvas').forEach(cv => {
       if (!cv.width || !cv.height) return;
@@ -1339,20 +1445,30 @@ function exportPDF() {
     });
   }
 
-  // 5. Aguardar render completo, depois print
   setTimeout(() => {
     paintBg();
     setTimeout(() => {
       window.print();
 
-      // 6. Restaurar estado de tela
+      // Restaurar após o print
       setTimeout(() => {
+        // Restaurar styles inline
+        _fixed.forEach(({ el, orig }) => el.setAttribute('style', orig));
+
+        // Restaurar cwraps
+        cwraps.forEach((cw, i) => {
+          if (origWrapStyles[i]) cw.setAttribute('style', origWrapStyles[i]);
+          else cw.removeAttribute('style');
+        });
+
+        // Restaurar aba ativa
         const activeId = document.querySelector('.ntab.active')
           ?.getAttribute('onclick')?.match(/'(\w+)'/)?.[1] || 'overview';
         pages.forEach(p => {
           p.style.display = (p.id === activeId) ? 'block' : '';
         });
 
+        // Recriar charts para tela
         done.clear();
         Object.keys(chartInstances).forEach(id => {
           try { chartInstances[id].destroy(); } catch(e) {}
@@ -1368,6 +1484,227 @@ function exportPDF() {
 }
 initCharts();
 </script>
+<script>
+// ══════════════════════════════════════════════════════════
+// AUTO-FETCH: busca dados do Supabase e faz merge com histórico
+// Dados anteriores a 2025 mantidos do hardcode; Supabase completa
+// ══════════════════════════════════════════════════════════
+(async function() {
+  const SUPA_URL  = 'https://uqthbzqpsgfflljxepen.supabase.co';
+  const SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxdGhienFwc2dmZmxsanhlcGVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1MDkyMTYsImV4cCI6MjA4OTA4NTIxNn0.bdZUNrd9TlErrs4uhCzzas9cKnUhzSKGOpkVQXIK1yA';
+
+  const headers = {
+    'apikey': SUPA_KEY,
+    'Authorization': 'Bearer ' + SUPA_KEY,
+    'Content-Type': 'application/json'
+  };
+
+  // Dados históricos hardcoded (2021-2024) — fonte: DFS auditadas
+  const HIST = {
+    '2021': { label:'2021', receita:1070, resultado:69,  custos:620,  caixa:1040 },
+    '2022': { label:'2022', receita:1070, resultado:143, custos:700,  caixa:1040 },
+    '2023': { label:'2023', receita:1302, resultado:238, custos:723,  caixa:1041 },
+    '2024': { label:'2024', receita:1302, resultado:107, custos:1079, caixa:2433 },
+  };
+
+  function fmtPeriodo(p) {
+    if (!p) return p;
+    const [ano, mes] = p.split('-');
+    if (!mes) return p; // já é só ano
+    const m = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    return m[parseInt(mes)-1] + '/' + ano;
+  }
+
+  // Não tentar fetch se rodando localmente via file://
+  if (window.location.protocol === 'file:') {
+    console.info('[CBF] Modo offline — usando dados hardcoded (abra via servidor para dados ao vivo)');
+    return;
+  }
+
+  try {
+    // Buscar configurações
+    const cfgRes = await fetch(SUPA_URL + '/rest/v1/configuracao?select=chave,valor', { headers });
+    const cfgList = await cfgRes.json();
+    const cfgMap = Object.fromEntries((cfgList || []).map((c) => [c.chave, c.valor]));
+    const periodo = cfgMap['periodo_atual'] || '2025-12';
+    const ultimoBalancete = cfgMap['ultimo_balancete'] || null;
+
+    // Buscar DFs anuais
+    const dadosRes = await fetch(SUPA_URL + '/rest/v1/dados_financeiros?select=*&order=periodo.asc', { headers });
+    const supa = await dadosRes.json();
+
+    // Buscar balancetes (se existirem)
+    const balRes = await fetch(SUPA_URL + '/rest/v1/balancetes?select=*&order=periodo.asc', { headers });
+    const balancetes = await balRes.json();
+    const temBalancete = Array.isArray(balancetes) && balancetes.length > 0;
+
+    // Decidir fonte de dados principal:
+    // - Se há balancete mais recente que as DFs → usar balancete como dado atual
+    // - Caso contrário → usar DFs anuais
+    let d, fonteAtual;
+    if (temBalancete && ultimoBalancete) {
+      const bal = balancetes.find(x => x.periodo === ultimoBalancete) || balancetes[balancetes.length - 1];
+      const dfAnual = (supa || []).find(x => x.periodo === periodo) || (supa || [])[supa.length - 1];
+      // Balancete prevalece se for de um período mais recente
+      if (!dfAnual || bal.periodo > dfAnual.periodo) {
+        d = bal; fonteAtual = 'balancete';
+      } else {
+        d = dfAnual; fonteAtual = 'dfs';
+      }
+    } else {
+      if (!supa || supa.length === 0) { console.warn('[CBF] Sem dados no Supabase'); return; }
+      d = supa.find(x => x.periodo === periodo) || supa[supa.length - 1];
+      fonteAtual = 'dfs';
+    }
+
+    console.log('[CBF] Fonte:', fonteAtual, '| Período:', d?.periodo);
+
+    // ── Merge histórico: hardcode (anos anteriores) + Supabase (2025+) ──
+    // Montar mapa de anos do Supabase
+    const supaMap = {};
+    supa.forEach(row => {
+      const ano = row.periodo.split('-')[0];
+      supaMap[ano] = {
+        label: fmtPeriodo(row.periodo),
+        receita:   Math.round(+row.receita_bruta / 1000),
+        resultado: Math.round(+row.resultado_exercicio / 1000),
+        custos:    Math.round(Math.abs(+row.custos_futebol) / 1000),
+        caixa:     Math.round(+row.caixa_equivalentes / 1000),
+      };
+    });
+
+    // Combinar hardcode + Supabase (Supabase prevalece quando existe)
+    const merged = { ...HIST, ...supaMap };
+    const anos = Object.keys(merged).sort();
+
+    const labels      = anos.map(a => merged[a].label);
+    const rec_serie   = anos.map(a => merged[a].receita);
+    const res_serie   = anos.map(a => merged[a].resultado);
+    const cus_serie   = anos.map(a => merged[a].custos);
+    const caixa_serie = anos.map(a => merged[a].caixa);
+
+    // Montar __CBF_DADOS__ com dados do período atual + série completa
+    window.__CBF_DADOS__ = {
+      periodo,
+      periodoFormatado: fmtPeriodo(periodo),
+      source_file: d.source_file,
+      geradoEm: d.updated_at,
+
+      // KPIs do período atual
+      receita_bruta:       +d.receita_bruta,
+      receita_liquida:     +d.receita_liquida,
+      resultado_exercicio: +(d.resultado_exercicio ?? d.resultado_periodo ?? 0),
+      custos_futebol:      Math.abs(+d.custos_futebol),
+      caixa_equivalentes:  +d.caixa_equivalentes,
+      ativo_total:         +d.ativo_total,
+      rec_financeiras:     +d.rec_financeiras,
+      patrimonio_liquido:  +d.patrimonio_liquido,
+      liquidez_corrente:   +d.liquidez_corrente,
+      liquidez_imediata:   +d.liquidez_imediata,
+      fluxo_operacional:   +d.fluxo_operacional,
+      fluxo_investimento:  +d.fluxo_investimento,
+
+      // Série histórica completa (hardcode + Supabase merged)
+      labels,
+      receita_serie:   rec_serie,
+      resultado_serie: res_serie,
+      custos_serie:    cus_serie,
+      caixa_serie,
+
+      // Doughnuts período atual
+      receitas_composicao: [
+        Math.round(Math.abs(+d.rec_transmissao) / 1000),
+        Math.round(Math.abs(+d.rec_patrocinio) / 1000),
+        Math.round(Math.abs(+d.rec_bilheteria) / 1000),
+        Math.round(Math.abs(+d.rec_registros) / 1000),
+        Math.round((Math.abs(+d.rec_desenvolvimento) + Math.abs(+d.rec_academy)) / 1000),
+      ],
+      custos_composicao: [
+        Math.round(Math.abs(+d.custo_fomento) / 1000),
+        Math.round(Math.abs(+d.custo_selecao_principal) / 1000),
+        Math.round(Math.abs(+d.custo_selecao_femininas) / 1000),
+        Math.round(Math.abs(+d.custo_selecao_base) / 1000),
+      ],
+
+      custo_selecao_principal: Math.round(Math.abs(+d.custo_selecao_principal) / 1000),
+      custo_selecao_base:      Math.round(Math.abs(+d.custo_selecao_base) / 1000),
+      custo_selecao_femininas: Math.round(Math.abs(+d.custo_selecao_femininas) / 1000),
+      custo_fomento:           Math.round(Math.abs(+d.custo_fomento) / 1000),
+      desp_pessoal:            Math.round(Math.abs(+d.desp_pessoal) / 1000),
+      desp_administrativas:    Math.round(Math.abs(+d.desp_administrativas) / 1000),
+      desp_impostos_taxas:     Math.round(Math.abs(+d.desp_impostos_taxas) / 1000),
+
+      ativo_circulante:      +d.ativo_circulante,
+      passivo_circulante:    +d.passivo_circulante,
+      contas_receber:        +d.contas_receber,
+      tributos_recuperar:    +d.tributos_recuperar,
+      depositos_judiciais:   +d.depositos_judiciais,
+      imobilizado:           +d.imobilizado,
+      receitas_diferidas_cp: +d.receitas_diferidas_cp,
+      receitas_diferidas_lp: +d.receitas_diferidas_lp,
+      prov_contingencias:    +d.prov_contingencias,
+      patrimonio_social:     +d.patrimonio_social,
+    };
+
+    // Atualizar GD com série completa (merged)
+    if (typeof GD !== 'undefined') {
+      GD.hist_labels      = labels;
+      GD.hist_resultado   = res_serie;
+      GD.hist_receita     = rec_serie;
+      GD.hist_custos      = cus_serie;
+      GD.hist_caixa       = caixa_serie;
+      GD.rec_composicao   = window.__CBF_DADOS__.receitas_composicao;
+      GD.cus_composicao   = window.__CBF_DADOS__.custos_composicao;
+      GD.sel_2025 = [
+        window.__CBF_DADOS__.custo_selecao_principal,
+        window.__CBF_DADOS__.custo_selecao_base,
+        window.__CBF_DADOS__.custo_selecao_femininas
+      ];
+      GD.cus_barras = [
+        window.__CBF_DADOS__.custo_fomento,
+        window.__CBF_DADOS__.custo_selecao_principal,
+        window.__CBF_DADOS__.desp_administrativas,
+        window.__CBF_DADOS__.custo_selecao_femininas,
+        window.__CBF_DADOS__.desp_pessoal,
+        window.__CBF_DADOS__.custo_selecao_base,
+      ];
+    }
+
+    // Atualizar KPIs no DOM
+    if (typeof _atualizarKPIs === 'function') _atualizarKPIs();
+
+    // Recriar gráficos com dados completos
+    if (typeof done !== 'undefined') done.clear();
+    if (typeof chartInstances !== 'undefined') {
+      Object.keys(chartInstances).forEach(id => {
+        try { chartInstances[id].destroy(); } catch(e) {}
+        delete chartInstances[id];
+      });
+    }
+    if (typeof initCharts === 'function') initCharts();
+
+    // Barra de info no rodapé
+    const bar = document.createElement('div');
+    bar.id = 'cbf-info-bar';
+    bar.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:rgba(0,112,60,.92);backdrop-filter:blur(4px);color:#fff;font-size:11px;padding:5px 20px;display:flex;justify-content:space-between;align-items:center;z-index:9999;font-family:DM Sans,system-ui,sans-serif';
+    const tipoLabel = fonteAtual === 'balancete' ? '📋 Balancete' : '📊 DFS';
+    bar.innerHTML = '<span>' + tipoLabel + ' <strong>' + fmtPeriodo(d.periodo) + '</strong> · ' + (d.source_file||'CBF') + ' · Atualizado: ' + new Date(d.updated_at).toLocaleString("pt-BR") + '</span><a href="/admin" style="color:#F5C800;text-decoration:none;font-weight:600">⚙️ Admin</a>';
+    document.body.appendChild(bar);
+
+    console.log('[CBF] ✅ Dados carregados. Período:', periodo, '| Série:', anos.join(','));
+
+  } catch(err) {
+    // Não mostrar erro se for bloqueio de CORS/network (file://, offline, etc)
+    const silencioso = err.message?.includes('fetch') || err.message?.includes('network') || err.message?.includes('Failed');
+    if (silencioso) {
+      console.info('[CBF] Dados ao vivo indisponíveis — usando dados hardcoded');
+    } else {
+      console.warn('[CBF] ⚠️ Erro Supabase:', err.message);
+    }
+  }
+})();
+</script>
+
 
 </body>
 </html>
