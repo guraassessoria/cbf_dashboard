@@ -1392,7 +1392,7 @@ async function exportPDF() {
   });
 
   // Recriar charts em largura de captura
-  const CAPTURE_W = 1600;
+  const CAPTURE_W = 1800;
   const cwraps = document.querySelectorAll('.cwrap');
   const origWrapStyles = [];
   cwraps.forEach((cw, i) => {
@@ -1435,28 +1435,50 @@ async function exportPDF() {
 
       // Capturar a página como imagem com fundo forçado
       const canvas = await html2canvas(page, {
-        scale: 2,
+        scale: 1.5,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#0D1117',
         logging: false,
         imageTimeout: 15000,
         onclone: (doc, el) => {
-          // Fundo escuro em todos os elementos
-          doc.body.style.background = '#0D1117';
-          doc.body.style.backgroundColor = '#0D1117';
+          // Fundo escuro
+          doc.body.style.cssText += ';background:#0D1117;background-color:#0D1117;';
           doc.documentElement.style.background = '#0D1117';
-          // Garantir largura total na página capturada
+
+          // Largura total na página capturada
           el.style.width = CAPTURE_W + 'px';
           el.style.minHeight = '0';
           el.style.overflow = 'visible';
+          el.style.boxSizing = 'border-box';
+
+          // Fundo em todas as páginas
           Array.from(doc.querySelectorAll('.page')).forEach(p => {
             p.style.background = '#0D1117';
             p.style.backgroundColor = '#0D1117';
           });
-          // Garantir que cwraps dentro do clone têm largura correta
+
+          // Garantir que grids .two e .cgrid expandem completamente
+          Array.from(doc.querySelectorAll('.two, .cgrid, .c32')).forEach(g => {
+            g.style.width = '100%';
+            g.style.boxSizing = 'border-box';
+            g.style.overflow = 'visible';
+            // Garantir que filhos diretos não colapsam
+            Array.from(g.children).forEach(child => {
+              child.style.minWidth = '0';
+              child.style.overflow = 'visible';
+            });
+          });
+
+          // cwraps com largura proporcional ao seu container
           Array.from(doc.querySelectorAll('.cwrap')).forEach(cw => {
-            cw.style.width = CAPTURE_W + 'px';
+            cw.style.overflow = 'visible';
+          });
+
+          // Elementos com style inline que podem limitar largura
+          Array.from(doc.querySelectorAll('[style]')).forEach(el2 => {
+            const s = el2.style;
+            if (s.minWidth && parseInt(s.minWidth) > 0) s.minWidth = '0';
           });
         }
       });
