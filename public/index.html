@@ -110,11 +110,11 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
 
 /* ── PRINT / PDF STYLES ── */
 @page { size: A4 landscape; margin: 8mm 10mm; }
-@page portrait-only { size: A4 portrait; margin: 8mm 10mm; }
+@page portrait-only { size: A4 landscape; margin: 8mm 10mm; }
 
 @media print {
   @page          { size: A4 landscape; margin: 8mm 12mm; }
-  @page portrait { size: A4 portrait;  margin: 8mm 12mm; }
+  @page portrait { size: A4 landscape;  margin: 8mm 12mm; }
 
   /* ── Forçar cores em TODOS os elementos — crítico para mobile ── */
   * {
@@ -182,8 +182,8 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
   [style*="font-size:70px"] { font-size: 30px !important; }
   .kcard { break-inside: avoid !important; }
 }</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+
 </head>
 <body>
 
@@ -1359,22 +1359,16 @@ function initCharts() {
     scales:{x:{grid:{color:'rgba(255,255,255,.05)'}, ticks:{callback:v=>v+'Mi'}}, y:{grid:{display:false}}}}});
 }
 
-async function exportPDF() {
+function exportPDF() {
   const btn = document.querySelector('.pdf-btn');
   const origHTML = btn.innerHTML;
-  btn.innerHTML = '⏳ Preparando...';
+  btn.innerHTML = '⏳ Gerando PDF...';
   btn.disabled = true;
 
-  // Detectar mobile
-  const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
-
-  // Mostrar todas as páginas para captura
-  const pages = Array.from(document.querySelectorAll('.page'));
-  const activeId = document.querySelector('.ntab.active')
-    ?.getAttribute('onclick')?.match(/'(\w+)'/)?.[1] || 'overview';
+  const pages = document.querySelectorAll('.page');
   pages.forEach(p => { p.style.display = 'block'; });
 
-  // Normalizar styles inline problemáticos
+  // Normalizar styles inline
   const _fixed = [];
   document.querySelectorAll('[style]').forEach(el => {
     const orig = el.getAttribute('style') || '';
@@ -1384,22 +1378,23 @@ async function exportPDF() {
     }
     if (/flex-shrink\s*:\s*0/.test(orig)) patch.flexShrink = '1';
     if (/min-width\s*:\s*240px/.test(orig)) { patch.minWidth = '0'; patch.flex = '1'; }
-    if (/gap\s*:\s*32px/.test(orig))    patch.gap = '8px';
+    if (/gap\s*:\s*32px/.test(orig)) patch.gap = '8px';
     if (/font-size\s*:\s*56px/.test(orig)) patch.fontSize = '26px';
     if (/font-size\s*:\s*80px/.test(orig)) patch.fontSize = '32px';
     if (/font-size\s*:\s*70px/.test(orig)) patch.fontSize = '30px';
     if (Object.keys(patch).length) { Object.assign(el.style, patch); _fixed.push({ el, orig }); }
   });
 
-  // Recriar charts em largura de captura
-  const CAPTURE_W = 900;
+  // Recriar charts em largura de impressão landscape A4
+  const PRINT_W = 1122;
   const cwraps = document.querySelectorAll('.cwrap');
   const origWrapStyles = [];
   cwraps.forEach((cw, i) => {
     origWrapStyles[i] = cw.getAttribute('style') || '';
-    cw.style.width = CAPTURE_W + 'px';
+    cw.style.width = PRINT_W + 'px';
     cw.style.display = 'block';
   });
+
   done.clear();
   Object.keys(chartInstances).forEach(id => {
     try { chartInstances[id].destroy(); } catch(e) {}
@@ -1407,128 +1402,44 @@ async function exportPDF() {
   });
   initCharts();
 
-  // Aguardar render completo dos charts
-  await new Promise(r => setTimeout(r, 2500));
-
-  // Pintar fundo escuro nos canvas (garante que não fiquem transparentes)
-  document.querySelectorAll('canvas').forEach(cv => {
-    if (!cv.width || !cv.height) return;
-    const ctx2 = cv.getContext('2d');
-    if (!ctx2) return;
-    ctx2.save();
-    ctx2.globalCompositeOperation = 'destination-over';
-    ctx2.fillStyle = '#0D1117';
-    ctx2.fillRect(0, 0, cv.width, cv.height);
-    ctx2.restore();
-  });
-
-  try {
-    const { jsPDF } = window.jspdf;
-    // PDF em landscape A4
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    const PDF_W = 210; // mm portrait largura
-    const PDF_H = 297; // mm portrait altura
-
-    for (let i = 0; i < pages.length; i++) {
-      const page = pages[i];
-      btn.innerHTML = `⏳ Página ${i + 1}/${pages.length}...`;
-
-      // Capturar a página como imagem com fundo forçado
-      const canvas = await html2canvas(page, {
-        scale: 1.5,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#0D1117',
-        logging: false,
-        imageTimeout: 15000,
-        onclone: (doc, el) => {
-          // Fundo escuro
-          doc.body.style.cssText += ';background:#0D1117;background-color:#0D1117;';
-          doc.documentElement.style.background = '#0D1117';
-
-          // Largura total na página capturada
-          el.style.width = CAPTURE_W + 'px';
-          el.style.minHeight = '0';
-          el.style.overflow = 'visible';
-          el.style.boxSizing = 'border-box';
-
-          // Fundo em todas as páginas
-          Array.from(doc.querySelectorAll('.page')).forEach(p => {
-            p.style.background = '#0D1117';
-            p.style.backgroundColor = '#0D1117';
-          });
-
-          // Garantir que grids .two e .cgrid expandem completamente
-          Array.from(doc.querySelectorAll('.two, .cgrid, .c32')).forEach(g => {
-            g.style.width = '100%';
-            g.style.boxSizing = 'border-box';
-            g.style.overflow = 'visible';
-            // Garantir que filhos diretos não colapsam
-            Array.from(g.children).forEach(child => {
-              child.style.minWidth = '0';
-              child.style.overflow = 'visible';
-            });
-          });
-
-          // cwraps com largura proporcional ao seu container
-          Array.from(doc.querySelectorAll('.cwrap')).forEach(cw => {
-            cw.style.overflow = 'visible';
-          });
-
-          // Elementos com style inline que podem limitar largura
-          Array.from(doc.querySelectorAll('[style]')).forEach(el2 => {
-            const s = el2.style;
-            if (s.minWidth && parseInt(s.minWidth) > 0) s.minWidth = '0';
-          });
-        }
-      });
-
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-
-      // Calcular dimensões mantendo proporção
-      const ratio = canvas.width / canvas.height;
-      let imgW = PDF_W;
-      let imgH = imgW / ratio;
-      if (imgH > PDF_H) { imgH = PDF_H; imgW = imgH * ratio; }
-      const offsetX = (PDF_W - imgW) / 2;
-      const offsetY = (PDF_H - imgH) / 2;
-
-      if (i > 0) pdf.addPage();
-      pdf.addImage(imgData, 'JPEG', offsetX, offsetY, imgW, imgH);
-    }
-
-    btn.innerHTML = '⏳ Gerando arquivo...';
-
-    if (isMobile) {
-      // Mobile: abrir em nova aba (download direto pode não funcionar em todos os browsers)
-      const pdfBlob = pdf.output('blob');
-      const url = URL.createObjectURL(pdfBlob);
-      window.open(url, '_blank');
-    } else {
-      // Desktop: download direto sem diálogo de impressão
-      pdf.save('CBF-DFS-2025.pdf');
-    }
-
-  } catch(err) {
-    console.error('Erro ao gerar PDF:', err);
-    alert('Erro ao gerar PDF: ' + err.message);
+  // Pintar fundo escuro nos canvas
+  function paintBg() {
+    document.querySelectorAll('canvas').forEach(cv => {
+      if (!cv.width || !cv.height) return;
+      const ctx2 = cv.getContext('2d');
+      if (!ctx2) return;
+      ctx2.save();
+      ctx2.globalCompositeOperation = 'destination-over';
+      ctx2.fillStyle = '#0D1117';
+      ctx2.fillRect(0, 0, cv.width, cv.height);
+      ctx2.restore();
+    });
   }
 
-  // Restaurar tudo
-  _fixed.forEach(({ el, orig }) => el.setAttribute('style', orig));
-  cwraps.forEach((cw, i) => {
-    if (origWrapStyles[i]) cw.setAttribute('style', origWrapStyles[i]);
-    else cw.removeAttribute('style');
-  });
-  pages.forEach(p => { p.style.display = (p.id === activeId) ? 'block' : ''; });
-  done.clear();
-  Object.keys(chartInstances).forEach(id => {
-    try { chartInstances[id].destroy(); } catch(e) {}
-    delete chartInstances[id];
-  });
-  initCharts();
-  btn.innerHTML = origHTML;
-  btn.disabled = false;
+  setTimeout(() => {
+    paintBg();
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => {
+        _fixed.forEach(({ el, orig }) => el.setAttribute('style', orig));
+        cwraps.forEach((cw, i) => {
+          if (origWrapStyles[i]) cw.setAttribute('style', origWrapStyles[i]);
+          else cw.removeAttribute('style');
+        });
+        const activeId = document.querySelector('.ntab.active')
+          ?.getAttribute('onclick')?.match(/'(\w+)'/)?.[1] || 'overview';
+        pages.forEach(p => { p.style.display = (p.id === activeId) ? 'block' : ''; });
+        done.clear();
+        Object.keys(chartInstances).forEach(id => {
+          try { chartInstances[id].destroy(); } catch(e) {}
+          delete chartInstances[id];
+        });
+        initCharts();
+        btn.innerHTML = origHTML;
+        btn.disabled = false;
+      }, 800);
+    }, 600);
+  }, 2500);
 }
 
 initCharts();
