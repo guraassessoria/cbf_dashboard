@@ -182,6 +182,8 @@ footer p{font-size:12px;color:var(--g2);font-weight:300}
   [style*="font-size:70px"] { font-size: 30px !important; }
   .kcard { break-inside: avoid !important; }
 }</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -1357,17 +1359,22 @@ function initCharts() {
     scales:{x:{grid:{color:'rgba(255,255,255,.05)'}, ticks:{callback:v=>v+'Mi'}}, y:{grid:{display:false}}}}});
 }
 
-function exportPDF() {
+async function exportPDF() {
   const btn = document.querySelector('.pdf-btn');
   const origHTML = btn.innerHTML;
-  btn.innerHTML = '⏳ Gerando PDF...';
+  btn.innerHTML = '⏳ Preparando...';
   btn.disabled = true;
 
-  // 1. Mostrar todas as páginas
-  const pages = document.querySelectorAll('.page');
+  // Detectar mobile
+  const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
+
+  // Mostrar todas as páginas para captura
+  const pages = Array.from(document.querySelectorAll('.page'));
+  const activeId = document.querySelector('.ntab.active')
+    ?.getAttribute('onclick')?.match(/'(\w+)'/)?.[1] || 'overview';
   pages.forEach(p => { p.style.display = 'block'; });
 
-  // 2. Normalizar styles inline problemáticos
+  // Normalizar styles inline problemáticos
   const _fixed = [];
   document.querySelectorAll('[style]').forEach(el => {
     const orig = el.getAttribute('style') || '';
@@ -1384,16 +1391,15 @@ function exportPDF() {
     if (Object.keys(patch).length) { Object.assign(el.style, patch); _fixed.push({ el, orig }); }
   });
 
-  // 3. Recriar charts na largura de impressão (landscape A4 ≈ 1122px a 96dpi)
-  const PRINT_W = 1122;
+  // Recriar charts em largura de captura
+  const CAPTURE_W = 1400;
   const cwraps = document.querySelectorAll('.cwrap');
   const origWrapStyles = [];
   cwraps.forEach((cw, i) => {
     origWrapStyles[i] = cw.getAttribute('style') || '';
-    cw.style.width = PRINT_W + 'px';
+    cw.style.width = CAPTURE_W + 'px';
     cw.style.display = 'block';
   });
-
   done.clear();
   Object.keys(chartInstances).forEach(id => {
     try { chartInstances[id].destroy(); } catch(e) {}
@@ -1401,46 +1407,97 @@ function exportPDF() {
   });
   initCharts();
 
-  // 4. Pintar fundo escuro nos canvas
-  function paintBg() {
-    document.querySelectorAll('canvas').forEach(cv => {
-      if (!cv.width || !cv.height) return;
-      const ctx2 = cv.getContext('2d');
-      if (!ctx2) return;
-      ctx2.save();
-      ctx2.globalCompositeOperation = 'destination-over';
-      ctx2.fillStyle = '#0D1117';
-      ctx2.fillRect(0, 0, cv.width, cv.height);
-      ctx2.restore();
-    });
+  // Aguardar render completo dos charts
+  await new Promise(r => setTimeout(r, 2500));
+
+  // Pintar fundo escuro nos canvas (garante que não fiquem transparentes)
+  document.querySelectorAll('canvas').forEach(cv => {
+    if (!cv.width || !cv.height) return;
+    const ctx2 = cv.getContext('2d');
+    if (!ctx2) return;
+    ctx2.save();
+    ctx2.globalCompositeOperation = 'destination-over';
+    ctx2.fillStyle = '#0D1117';
+    ctx2.fillRect(0, 0, cv.width, cv.height);
+    ctx2.restore();
+  });
+
+  try {
+    const { jsPDF } = window.jspdf;
+    // PDF em landscape A4
+    const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const PDF_W = 297; // mm landscape largura
+    const PDF_H = 210; // mm landscape altura
+
+    for (let i = 0; i < pages.length; i++) {
+      const page = pages[i];
+      btn.innerHTML = `⏳ Página ${i + 1}/${pages.length}...`;
+
+      // Capturar a página como imagem com fundo forçado
+      const canvas = await html2canvas(page, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#0D1117',
+        logging: false,
+        imageTimeout: 15000,
+        onclone: (doc) => {
+          // Garantir que o clone também tem fundo escuro
+          doc.body.style.background = '#0D1117';
+          doc.body.style.backgroundColor = '#0D1117';
+          Array.from(doc.querySelectorAll('.page')).forEach(p => {
+            p.style.background = '#0D1117';
+            p.style.backgroundColor = '#0D1117';
+          });
+        }
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+      // Calcular dimensões mantendo proporção
+      const ratio = canvas.width / canvas.height;
+      let imgW = PDF_W;
+      let imgH = imgW / ratio;
+      if (imgH > PDF_H) { imgH = PDF_H; imgW = imgH * ratio; }
+      const offsetX = (PDF_W - imgW) / 2;
+      const offsetY = (PDF_H - imgH) / 2;
+
+      if (i > 0) pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', offsetX, offsetY, imgW, imgH);
+    }
+
+    btn.innerHTML = '⏳ Gerando arquivo...';
+
+    if (isMobile) {
+      // Mobile: abrir em nova aba (download direto pode não funcionar em todos os browsers)
+      const pdfBlob = pdf.output('blob');
+      const url = URL.createObjectURL(pdfBlob);
+      window.open(url, '_blank');
+    } else {
+      // Desktop: download direto sem diálogo de impressão
+      pdf.save('CBF-DFS-2025.pdf');
+    }
+
+  } catch(err) {
+    console.error('Erro ao gerar PDF:', err);
+    alert('Erro ao gerar PDF: ' + err.message);
   }
 
-  setTimeout(() => {
-    paintBg();
-    setTimeout(() => {
-      window.print();
-
-      // 5. Restaurar após o print
-      setTimeout(() => {
-        _fixed.forEach(({ el, orig }) => el.setAttribute('style', orig));
-        cwraps.forEach((cw, i) => {
-          if (origWrapStyles[i]) cw.setAttribute('style', origWrapStyles[i]);
-          else cw.removeAttribute('style');
-        });
-        const activeId = document.querySelector('.ntab.active')
-          ?.getAttribute('onclick')?.match(/'(\w+)'/)?.[1] || 'overview';
-        pages.forEach(p => { p.style.display = (p.id === activeId) ? 'block' : ''; });
-        done.clear();
-        Object.keys(chartInstances).forEach(id => {
-          try { chartInstances[id].destroy(); } catch(e) {}
-          delete chartInstances[id];
-        });
-        initCharts();
-        btn.innerHTML = origHTML;
-        btn.disabled = false;
-      }, 800);
-    }, 600);
-  }, 2500);
+  // Restaurar tudo
+  _fixed.forEach(({ el, orig }) => el.setAttribute('style', orig));
+  cwraps.forEach((cw, i) => {
+    if (origWrapStyles[i]) cw.setAttribute('style', origWrapStyles[i]);
+    else cw.removeAttribute('style');
+  });
+  pages.forEach(p => { p.style.display = (p.id === activeId) ? 'block' : ''; });
+  done.clear();
+  Object.keys(chartInstances).forEach(id => {
+    try { chartInstances[id].destroy(); } catch(e) {}
+    delete chartInstances[id];
+  });
+  initCharts();
+  btn.innerHTML = origHTML;
+  btn.disabled = false;
 }
 
 initCharts();
